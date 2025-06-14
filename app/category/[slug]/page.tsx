@@ -1,267 +1,73 @@
 import { notFound } from "next/navigation"
-import Image from "next/image"
 import Link from "next/link"
-import TaxInfo from "@/components/tax-info"
-import AddToCartButton from "./add-to-cart"
-import { Star, StarHalf } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 
-// Define the categories with their products
+// Define the categories with their subcategories
 const categories = {
   electronics: {
     name: "Electronics",
     description: "Cutting-edge gadgets and devices for modern living",
-    products: [
-      {
-        id: 101,
-        name: "Premium Wireless Headphones",
-        description: "Immersive sound quality with noise cancellation technology.",
-        price: 199.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.5,
-        reviews: 128,
-      },
-      {
-        id: 102,
-        name: "Smart Fitness Watch",
-        description: "Track your health metrics and stay connected on the go.",
-        price: 149.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.2,
-        reviews: 95,
-      },
-      {
-        id: 103,
-        name: "Ultra HD Camera",
-        description: "Capture life's moments with stunning clarity and detail.",
-        price: 299.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.7,
-        reviews: 203,
-      },
-      {
-        id: 104,
-        name: "Portable Power Bank",
-        description: "Fast charging solution for all your devices when you're on the move.",
-        price: 59.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.0,
-        reviews: 156,
-      },
-      {
-        id: 105,
-        name: "Wireless Earbuds",
-        description: "Crystal clear audio in a compact, comfortable design.",
-        price: 89.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.3,
-        reviews: 178,
-      },
-      {
-        id: 106,
-        name: "Smart Home Speaker",
-        description: "Voice-controlled speaker with premium sound quality.",
-        price: 129.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.1,
-        reviews: 112,
-      },
+    subcategories: [
+      { name: "Mobile Phones", slug: "mobile-phones", description: "Smartphones and feature phones", count: 45 },
+      { name: "Headphones & Earphones", slug: "headphones", description: "Audio devices and accessories", count: 32 },
+      { name: "Wireless Earbuds", slug: "wireless-earbuds", description: "True wireless audio", count: 28 },
+      { name: "Smartwatches", slug: "smartwatches", description: "Fitness and smart wearables", count: 19 },
+      { name: "Cameras", slug: "cameras", description: "Digital cameras and accessories", count: 24 },
+      { name: "Power Banks", slug: "power-banks", description: "Portable charging solutions", count: 15 },
+      { name: "Speakers", slug: "speakers", description: "Bluetooth and wired speakers", count: 22 },
+      { name: "Laptops & Computers", slug: "laptops", description: "Computing devices", count: 18 },
+      { name: "Gaming Accessories", slug: "gaming", description: "Gaming gear and accessories", count: 12 },
+      { name: "Others", slug: "others", description: "Other electronic items", count: 8 },
     ],
   },
   fashion: {
     name: "Fashion",
     description: "Stylish apparel and accessories for every occasion",
-    products: [
-      {
-        id: 201,
-        name: "Designer Sunglasses",
-        description: "Protect your eyes with style and elegance.",
-        price: 79.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.0,
-        reviews: 85,
-      },
-      {
-        id: 202,
-        name: "Premium Leather Wallet",
-        description: "Handcrafted genuine leather wallet with multiple compartments.",
-        price: 49.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.4,
-        reviews: 132,
-      },
-      {
-        id: 203,
-        name: "Classic Wristwatch",
-        description: "Timeless design with precision movement.",
-        price: 159.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.6,
-        reviews: 98,
-      },
-      {
-        id: 204,
-        name: "Silk Neck Tie",
-        description: "100% silk tie with elegant patterns.",
-        price: 39.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.2,
-        reviews: 67,
-      },
-      {
-        id: 205,
-        name: "Leather Belt",
-        description: "Premium quality leather belt with stylish buckle.",
-        price: 45.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.3,
-        reviews: 104,
-      },
-      {
-        id: 206,
-        name: "Designer Handbag",
-        description: "Elegant handbag with spacious compartments.",
-        price: 199.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.7,
-        reviews: 143,
-      },
+    subcategories: [
+      { name: "Sarees", slug: "sarees", description: "Traditional and designer sarees", count: 67 },
+      { name: "Shirts", slug: "shirts", description: "Formal and casual shirts", count: 89 },
+      { name: "Jeans", slug: "jeans", description: "Denim wear for all", count: 45 },
+      { name: "T-Shirts", slug: "t-shirts", description: "Casual and graphic tees", count: 78 },
+      { name: "Dresses", slug: "dresses", description: "Party and casual dresses", count: 56 },
+      { name: "Sunglasses", slug: "sunglasses", description: "Stylish eyewear", count: 34 },
+      { name: "Watches", slug: "watches", description: "Fashion and luxury timepieces", count: 42 },
+      { name: "Handbags", slug: "handbags", description: "Bags and purses", count: 38 },
+      { name: "Shoes", slug: "shoes", description: "Footwear for all occasions", count: 52 },
+      { name: "Others", slug: "others", description: "Other fashion accessories", count: 15 },
     ],
   },
   "home-living": {
     name: "Home & Living",
     description: "Beautiful furnishings and decor for your space",
-    products: [
-      {
-        id: 301,
-        name: "Scented Candle Set",
-        description: "Set of 3 premium scented candles for a relaxing atmosphere.",
-        price: 34.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.7,
-        reviews: 203,
-      },
-      {
-        id: 302,
-        name: "Decorative Throw Pillows",
-        description: "Set of 2 stylish throw pillows to accent your living space.",
-        price: 29.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.5,
-        reviews: 187,
-      },
-      {
-        id: 303,
-        name: "Modern Wall Clock",
-        description: "Sleek design wall clock for contemporary homes.",
-        price: 49.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.2,
-        reviews: 95,
-      },
-      {
-        id: 304,
-        name: "Ceramic Vase Set",
-        description: "Set of 3 ceramic vases in varying sizes.",
-        price: 59.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.4,
-        reviews: 126,
-      },
-      {
-        id: 305,
-        name: "Luxury Bed Sheets",
-        description: "100% Egyptian cotton sheets for ultimate comfort.",
-        price: 89.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.8,
-        reviews: 215,
-      },
-      {
-        id: 306,
-        name: "Table Lamp",
-        description: "Modern design table lamp with adjustable brightness.",
-        price: 69.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.3,
-        reviews: 108,
-      },
+    subcategories: [
+      { name: "Candles & Aromatherapy", slug: "candles", description: "Scented candles and diffusers", count: 28 },
+      { name: "Bed Sheets & Linens", slug: "bed-sheets", description: "Comfortable bedding", count: 35 },
+      { name: "Pillows & Cushions", slug: "pillows", description: "Decorative and sleeping pillows", count: 42 },
+      { name: "Wall Clocks", slug: "wall-clocks", description: "Decorative timepieces", count: 18 },
+      { name: "Vases & Planters", slug: "vases", description: "Decorative containers", count: 25 },
+      { name: "Lamps & Lighting", slug: "lamps", description: "Indoor lighting solutions", count: 31 },
+      { name: "Curtains & Blinds", slug: "curtains", description: "Window treatments", count: 22 },
+      { name: "Rugs & Carpets", slug: "rugs", description: "Floor coverings", count: 19 },
+      { name: "Kitchen Accessories", slug: "kitchen", description: "Cooking and dining items", count: 47 },
+      { name: "Others", slug: "others", description: "Other home items", count: 12 },
     ],
   },
   beauty: {
     name: "Beauty & Personal Care",
     description: "Premium products for your self-care routine",
-    products: [
-      {
-        id: 401,
-        name: "Luxury Skincare Set",
-        description: "Complete skincare routine with premium ingredients.",
-        price: 129.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.6,
-        reviews: 178,
-      },
-      {
-        id: 402,
-        name: "Premium Hair Dryer",
-        description: "Professional-grade hair dryer with multiple settings.",
-        price: 89.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.3,
-        reviews: 142,
-      },
-      {
-        id: 403,
-        name: "Electric Shaver",
-        description: "Precision electric shaver for a smooth experience.",
-        price: 79.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.2,
-        reviews: 97,
-      },
-      {
-        id: 404,
-        name: "Makeup Brush Set",
-        description: "Set of 12 professional makeup brushes.",
-        price: 49.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.5,
-        reviews: 163,
-      },
-      {
-        id: 405,
-        name: "Perfume Collection",
-        description: "Set of 3 luxury fragrances for any occasion.",
-        price: 119.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.7,
-        reviews: 189,
-      },
-      {
-        id: 406,
-        name: "Facial Massager",
-        description: "Electric facial massager for skin rejuvenation.",
-        price: 59.99,
-        image: "/placeholder.svg?height=300&width=300",
-        rating: 4.1,
-        reviews: 86,
-      },
+    subcategories: [
+      { name: "Face Creams & Moisturizers", slug: "face-creams", description: "Skincare essentials", count: 45 },
+      { name: "Blush & Highlighters", slug: "blush", description: "Cheek makeup products", count: 23 },
+      { name: "Eye Makeup", slug: "eye-makeup", description: "Mascara, eyeliner, eyeshadow", count: 38 },
+      { name: "Lipstick & Lip Care", slug: "lipstick", description: "Lip color and care", count: 52 },
+      { name: "Foundation & Concealer", slug: "foundation", description: "Base makeup products", count: 34 },
+      { name: "Skincare Sets", slug: "skincare", description: "Complete skincare routines", count: 28 },
+      { name: "Hair Care", slug: "hair-care", description: "Shampoo, conditioner, styling", count: 41 },
+      { name: "Perfumes & Fragrances", slug: "perfumes", description: "Scents and body sprays", count: 36 },
+      { name: "Nail Care", slug: "nail-care", description: "Nail polish and treatments", count: 19 },
+      { name: "Others", slug: "others", description: "Other beauty products", count: 8 },
     ],
   },
-}
-
-// Function to render star ratings
-const renderRating = (rating: number) => {
-  const fullStars = Math.floor(rating)
-  const hasHalfStar = rating % 1 >= 0.5
-
-  return (
-    <div className="flex items-center">
-      {[...Array(fullStars)].map((_, i) => (
-        <Star key={i} className="h-4 w-4 fill-[#FFA41C] text-[#FFA41C]" />
-      ))}
-      {hasHalfStar && <StarHalf className="h-4 w-4 fill-[#FFA41C] text-[#FFA41C]" />}
-    </div>
-  )
 }
 
 export default function CategoryPage({ params }: { params: { slug: string } }) {
@@ -275,128 +81,58 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
   return (
     <div className="bg-gray-100 min-h-screen">
       <div className="container mx-auto px-4 py-4">
+        {/* Breadcrumb */}
         <div className="flex items-center text-sm mb-4">
           <Link href="/" className="text-[#565959] hover:text-[#C7511F] hover:underline">
             Home
           </Link>
-          <span className="mx-2">›</span>
+          <ChevronRight className="h-4 w-4 mx-1 text-gray-400" />
           <span className="font-medium">{category.name}</span>
         </div>
 
-        <div className="bg-white p-4 mb-4">
-          <h1 className="text-2xl font-medium text-black mb-2">{category.name}</h1>
-          <p className="text-sm text-gray-700">{category.description}</p>
+        {/* Category Header */}
+        <div className="bg-white p-6 mb-6 rounded-sm">
+          <h1 className="text-3xl font-bold text-black mb-2">{category.name}</h1>
+          <p className="text-gray-600 text-lg">{category.description}</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Filters sidebar */}
-          <div className="hidden md:block">
-            <div className="bg-white p-4 mb-4">
-              <h2 className="text-lg font-medium text-black mb-3">Department</h2>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link href="/category/electronics" className="amazon-link">
-                    Electronics
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/category/fashion" className="amazon-link">
-                    Fashion
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/category/home-living" className="amazon-link">
-                    Home & Living
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/category/beauty" className="amazon-link">
-                    Beauty & Personal Care
-                  </Link>
-                </li>
-              </ul>
-            </div>
+        {/* Subcategories Grid */}
+        <div className="bg-white p-6 rounded-sm">
+          <h2 className="text-2xl font-medium text-black mb-6">Browse {category.name} Categories</h2>
 
-            <div className="bg-white p-4">
-              <h2 className="text-lg font-medium text-black mb-3">Customer Reviews</h2>
-              <ul className="space-y-2">
-                <li className="flex items-center">
-                  {renderRating(4)}
-                  <span className="ml-2 text-sm amazon-link">& Up</span>
-                </li>
-                <li className="flex items-center">
-                  {renderRating(3)}
-                  <span className="ml-2 text-sm amazon-link">& Up</span>
-                </li>
-                <li className="flex items-center">
-                  {renderRating(2)}
-                  <span className="ml-2 text-sm amazon-link">& Up</span>
-                </li>
-                <li className="flex items-center">
-                  {renderRating(1)}
-                  <span className="ml-2 text-sm amazon-link">& Up</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Products grid */}
-          <div className="md:col-span-3">
-            <div className="bg-white p-4 mb-4 flex justify-between items-center">
-              <span className="text-sm">
-                {category.products.length} results for <span className="font-medium">{category.name}</span>
-              </span>
-              <select className="text-sm border border-gray-300 rounded-md p-1">
-                <option>Sort by: Featured</option>
-                <option>Price: Low to High</option>
-                <option>Price: High to Low</option>
-                <option>Customer Reviews</option>
-                <option>Newest Arrivals</option>
-              </select>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {category.products.map((product) => (
-                <div key={product.id} className="bg-white p-4 border border-gray-200">
-                  <Link href={`/product/${product.id}`} className="block">
-                    <div className="aspect-square relative mb-3">
-                      <Image
-                        src={product.image || "/placeholder.svg"}
-                        alt={product.name}
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
-                    <h3 className="text-base line-clamp-2 mb-1 hover:text-[#C7511F]">{product.name}</h3>
-                  </Link>
-
-                  <div className="flex items-center">
-                    {renderRating(product.rating)}
-                    <span className="ml-1 text-sm amazon-link">{product.reviews}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {category.subcategories.map((subcategory) => (
+              <Link
+                key={subcategory.slug}
+                href={`/category/${slug}/${subcategory.slug}`}
+                className="block p-4 border border-gray-200 rounded-sm hover:shadow-md hover:border-[#ff9900] transition-all group"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-medium text-black group-hover:text-[#C7511F] mb-1">{subcategory.name}</h3>
+                    <p className="text-sm text-gray-600 mb-2">{subcategory.description}</p>
+                    <span className="text-xs text-gray-500">{subcategory.count} items</span>
                   </div>
-
-                  <div className="mt-2">
-                    <span className="amazon-price text-lg">৳{(product.price * 110).toFixed(2)}</span>
-                    <div className="text-xs text-gray-500 flex items-center mt-1">
-                      <span>Includes 10% VAT</span>
-                      <span className="mx-1">•</span>
-                      <TaxInfo />
-                    </div>
-                  </div>
-
-                  <div className="mt-3">
-                    <AddToCartButton product={product} />
-                  </div>
-
-                  <div className="mt-2 text-xs">
-                    <span className="text-[#007600]">In Stock</span>
-                    <div className="mt-1">
-                      <span>Ships to Bangladesh</span>
-                    </div>
-                  </div>
+                  <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-[#ff9900]" />
                 </div>
-              ))}
-            </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Popular Items Preview */}
+        <div className="bg-white p-6 rounded-sm mt-6">
+          <h2 className="text-2xl font-medium text-black mb-4">Popular in {category.name}</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((item) => (
+              <div key={item} className="text-center">
+                <div className="aspect-square bg-gray-100 rounded-sm mb-2 flex items-center justify-center">
+                  <span className="text-gray-400 text-sm">Product {item}</span>
+                </div>
+                <p className="text-xs text-gray-600 line-clamp-2">Sample Product Name</p>
+                <p className="text-sm font-medium amazon-price">৳1,299</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>

@@ -7,6 +7,55 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
 
+// Enhanced product database for search
+const searchDatabase = {
+  // Beauty products with brand names
+  "fair and lovely": {
+    category: "beauty",
+    subcategory: "face-creams",
+    name: "Fair & Lovely Advanced Multi Vitamin Face Cream",
+  },
+  "fair & lovely": {
+    category: "beauty",
+    subcategory: "face-creams",
+    name: "Fair & Lovely Advanced Multi Vitamin Face Cream",
+  },
+  ponds: { category: "beauty", subcategory: "face-creams", name: "Pond's Age Miracle Day Cream" },
+  "pond's": { category: "beauty", subcategory: "face-creams", name: "Pond's Age Miracle Day Cream" },
+  olay: { category: "beauty", subcategory: "face-creams", name: "Olay Regenerist Micro-Sculpting Cream" },
+  nivea: { category: "beauty", subcategory: "face-creams", name: "Nivea Soft Light Moisturizing Cream" },
+
+  // Electronics with brand names
+  iphone: { category: "electronics", subcategory: "mobile-phones", name: "iPhone 15 Pro Max" },
+  samsung: { category: "electronics", subcategory: "mobile-phones", name: "Samsung Galaxy S24 Ultra" },
+  sony: { category: "electronics", subcategory: "headphones", name: "Sony WH-1000XM5" },
+  bose: { category: "electronics", subcategory: "headphones", name: "Bose QuietComfort 45" },
+
+  // Generic categories
+  "face cream": { category: "beauty", subcategory: "face-creams" },
+  moisturizer: { category: "beauty", subcategory: "face-creams" },
+  blush: { category: "beauty", subcategory: "blush" },
+  mascara: { category: "beauty", subcategory: "eye-makeup" },
+  eyeshadow: { category: "beauty", subcategory: "eye-makeup" },
+  lipstick: { category: "beauty", subcategory: "lipstick" },
+
+  mobile: { category: "electronics", subcategory: "mobile-phones" },
+  phone: { category: "electronics", subcategory: "mobile-phones" },
+  smartphone: { category: "electronics", subcategory: "mobile-phones" },
+  headphones: { category: "electronics", subcategory: "headphones" },
+  earphones: { category: "electronics", subcategory: "headphones" },
+  earbuds: { category: "electronics", subcategory: "wireless-earbuds" },
+
+  saree: { category: "fashion", subcategory: "sarees" },
+  shirt: { category: "fashion", subcategory: "shirts" },
+  jeans: { category: "fashion", subcategory: "jeans" },
+  dress: { category: "fashion", subcategory: "dresses" },
+
+  candle: { category: "home-living", subcategory: "candles" },
+  "bed sheet": { category: "home-living", subcategory: "bed-sheets" },
+  pillow: { category: "home-living", subcategory: "pillows" },
+}
+
 export default function RegularSearch() {
   const [query, setQuery] = useState("")
   const router = useRouter()
@@ -15,31 +64,59 @@ export default function RegularSearch() {
   const handleSearch = () => {
     if (!query.trim()) return
 
-    // Enhanced search logic with better keyword matching
-    const lowerQuery = query.toLowerCase()
+    const lowerQuery = query.toLowerCase().trim()
 
-    // Beauty & Personal Care keywords
+    // First, try exact product name match
+    const exactMatch = searchDatabase[lowerQuery as keyof typeof searchDatabase]
+    if (exactMatch) {
+      if (exactMatch.name) {
+        toast({
+          title: "Product Found!",
+          description: `Found: ${exactMatch.name}`,
+          duration: 3000,
+        })
+      } else {
+        toast({
+          title: "Category Found!",
+          description: `Showing products in ${exactMatch.subcategory.replace("-", " ")}`,
+          duration: 3000,
+        })
+      }
+      router.push(`/category/${exactMatch.category}/${exactMatch.subcategory}`)
+      setQuery("")
+      return
+    }
+
+    // Try partial matches for brand names and product types
+    for (const [key, value] of Object.entries(searchDatabase)) {
+      if (lowerQuery.includes(key) || key.includes(lowerQuery)) {
+        if (value.name) {
+          toast({
+            title: "Product Found!",
+            description: `Found: ${value.name}`,
+            duration: 3000,
+          })
+        } else {
+          toast({
+            title: "Category Found!",
+            description: `Showing products in ${value.subcategory.replace("-", " ")}`,
+            duration: 3000,
+          })
+        }
+        router.push(`/category/${value.category}/${value.subcategory}`)
+        setQuery("")
+        return
+      }
+    }
+
+    // Enhanced category matching
     if (
       lowerQuery.includes("face") ||
       lowerQuery.includes("skin") ||
       lowerQuery.includes("beauty") ||
       lowerQuery.includes("makeup") ||
       lowerQuery.includes("cosmetic") ||
-      lowerQuery.includes("skincare") ||
-      lowerQuery.includes("cream") ||
-      lowerQuery.includes("lotion") ||
-      lowerQuery.includes("serum") ||
-      lowerQuery.includes("cleanser") ||
-      lowerQuery.includes("moisturizer") ||
-      lowerQuery.includes("perfume") ||
-      lowerQuery.includes("fragrance") ||
-      lowerQuery.includes("lipstick") ||
-      lowerQuery.includes("foundation") ||
-      lowerQuery.includes("mascara") ||
-      lowerQuery.includes("shampoo") ||
-      lowerQuery.includes("conditioner") ||
-      lowerQuery.includes("hair") ||
-      lowerQuery.includes("nail")
+      lowerQuery.includes("cream")
     ) {
       toast({
         title: "Beauty & Personal Care",
@@ -51,26 +128,11 @@ export default function RegularSearch() {
       return
     }
 
-    // Fashion keywords
     if (
       lowerQuery.includes("fashion") ||
       lowerQuery.includes("clothes") ||
       lowerQuery.includes("clothing") ||
-      lowerQuery.includes("shirt") ||
-      lowerQuery.includes("dress") ||
-      lowerQuery.includes("pants") ||
-      lowerQuery.includes("sunglasses") ||
-      lowerQuery.includes("glasses") ||
-      lowerQuery.includes("wallet") ||
-      lowerQuery.includes("belt") ||
-      lowerQuery.includes("bag") ||
-      lowerQuery.includes("handbag") ||
-      lowerQuery.includes("purse") ||
-      lowerQuery.includes("watch") ||
-      lowerQuery.includes("jewelry") ||
-      lowerQuery.includes("accessory") ||
-      lowerQuery.includes("tie") ||
-      lowerQuery.includes("scarf")
+      lowerQuery.includes("wear")
     ) {
       toast({
         title: "Fashion",
@@ -82,26 +144,11 @@ export default function RegularSearch() {
       return
     }
 
-    // Home & Living keywords
     if (
       lowerQuery.includes("home") ||
       lowerQuery.includes("house") ||
       lowerQuery.includes("living") ||
-      lowerQuery.includes("decor") ||
-      lowerQuery.includes("decoration") ||
-      lowerQuery.includes("candle") ||
-      lowerQuery.includes("pillow") ||
-      lowerQuery.includes("cushion") ||
-      lowerQuery.includes("bed") ||
-      lowerQuery.includes("sheet") ||
-      lowerQuery.includes("blanket") ||
-      lowerQuery.includes("lamp") ||
-      lowerQuery.includes("light") ||
-      lowerQuery.includes("clock") ||
-      lowerQuery.includes("vase") ||
-      lowerQuery.includes("furniture") ||
-      lowerQuery.includes("kitchen") ||
-      lowerQuery.includes("bathroom")
+      lowerQuery.includes("decor")
     ) {
       toast({
         title: "Home & Living",
@@ -113,28 +160,11 @@ export default function RegularSearch() {
       return
     }
 
-    // Electronics keywords
     if (
       lowerQuery.includes("electronic") ||
       lowerQuery.includes("tech") ||
       lowerQuery.includes("gadget") ||
-      lowerQuery.includes("phone") ||
-      lowerQuery.includes("mobile") ||
-      lowerQuery.includes("headphone") ||
-      lowerQuery.includes("earphone") ||
-      lowerQuery.includes("earbud") ||
-      lowerQuery.includes("speaker") ||
-      lowerQuery.includes("audio") ||
-      lowerQuery.includes("camera") ||
-      lowerQuery.includes("watch") ||
-      lowerQuery.includes("smartwatch") ||
-      lowerQuery.includes("fitness") ||
-      lowerQuery.includes("power") ||
-      lowerQuery.includes("battery") ||
-      lowerQuery.includes("charger") ||
-      lowerQuery.includes("computer") ||
-      lowerQuery.includes("laptop") ||
-      lowerQuery.includes("tablet")
+      lowerQuery.includes("device")
     ) {
       toast({
         title: "Electronics",
@@ -149,7 +179,7 @@ export default function RegularSearch() {
     // If no specific category matches, show all categories
     toast({
       title: "Search Results",
-      description: `Searching for "${query}" - check all our categories below!`,
+      description: `Searching for "${query}" - browse our categories to find what you need!`,
       duration: 4000,
     })
     router.push("/#categories")
@@ -160,7 +190,7 @@ export default function RegularSearch() {
     <div className="relative w-full">
       <Input
         type="search"
-        placeholder="Search: face cream, headphones, sunglasses, candles..."
+        placeholder="Search: Fair and Lovely, iPhone, headphones, sarees..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyPress={(e) => e.key === "Enter" && handleSearch()}

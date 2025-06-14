@@ -16,22 +16,9 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
   const { toast } = useToast()
 
   const handleCheckout = () => {
-    toast({
-      title: "Checkout initiated",
-      description: "This would normally redirect to a payment gateway.",
-      duration: 3000,
-    })
-
-    // Simulate successful checkout
-    setTimeout(() => {
-      clearCart()
-      onClose()
-      toast({
-        title: "Order placed successfully!",
-        description: "Thank you for shopping with Hasib Shop.",
-        duration: 5000,
-      })
-    }, 2000)
+    // Redirect to location selection page
+    window.location.href = "/checkout/location"
+    onClose()
   }
 
   if (!open) return null

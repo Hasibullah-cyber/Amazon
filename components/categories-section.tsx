@@ -37,13 +37,17 @@ export default function CategoriesSection() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {categories.map((category) => (
-            <Link href={`/category/${category.id}`} key={category.id} className="amazon-card text-center">
+            <Link
+              href={`/category/${category.id}`}
+              key={category.id}
+              className="amazon-card text-center hover:shadow-md transition-shadow"
+            >
               <div className="aspect-square relative mb-3">
                 <Image src={category.image || "/placeholder.svg"} alt={category.name} fill className="object-contain" />
               </div>
               <h3 className="amazon-title text-lg">{category.name}</h3>
               <p className="text-sm text-gray-600 mb-2">{category.description}</p>
-              <span className="amazon-link text-sm">Shop now</span>
+              <span className="amazon-link text-sm">Browse categories</span>
             </Link>
           ))}
         </div>
