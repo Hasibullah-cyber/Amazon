@@ -2,11 +2,11 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ShoppingCart, Menu, X, Search, User, MapPin } from "lucide-react"
+import { ShoppingCart, Menu, X, User, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/components/cart-provider"
 import CartDrawer from "@/components/cart-drawer"
-import { Input } from "@/components/ui/input"
+import AIProductSearch from "@/components/ai-product-search"
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -37,18 +37,7 @@ export default function Navbar() {
 
             {/* Search bar */}
             <div className="flex flex-1 mx-4">
-              <div className="relative w-full">
-                <Input
-                  type="search"
-                  placeholder="Search products..."
-                  className="w-full rounded-l-md rounded-r-none border-r-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-                <div className="absolute inset-y-0 right-0 flex items-center">
-                  <Button className="h-full rounded-l-none bg-[#febd69] hover:bg-[#f3a847] text-black">
-                    <Search className="h-5 w-5" />
-                  </Button>
-                </div>
-              </div>
+              <AIProductSearch />
             </div>
 
             {/* Account & Orders */}

@@ -7,13 +7,14 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { CartProvider } from "@/components/cart-provider"
 import { Toaster } from "@/components/ui/toaster"
+import AIChatAssistant from "@/components/ai-chat-assistant"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Hasib Shop: Online Shopping for Electronics, Fashion, Home & More",
   description: "Premium products with exceptional quality",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -30,6 +31,7 @@ export default function RootLayout({
               <Navbar />
               <main className="flex-1 bg-gray-100">{children}</main>
               <Footer />
+              <AIChatAssistant />
             </div>
             <Toaster />
           </CartProvider>
