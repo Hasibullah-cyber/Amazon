@@ -24,22 +24,30 @@ export default function AIProductSearch() {
         body: JSON.stringify({ query }),
       })
 
-      if (!response.ok) {
-        throw new Error("Search failed")
-      }
-
       const data = await response.json()
 
-      // Redirect to search results or show suggestions
-      toast({
-        title: "AI Search Results",
-        description: data.suggestion || "Here are some product suggestions for you!",
-      })
+      if (data.suggestion) {
+        toast({
+          title: "AI Search Results",
+          description: data.suggestion,
+          duration: 8000,
+        })
+      } else {
+        toast({
+          title: "Search Results",
+          description: "Try browsing our categories for the best products!",
+          duration: 5000,
+        })
+      }
+
+      // Clear the search input
+      setQuery("")
     } catch (error) {
+      console.error("Search error:", error)
       toast({
-        title: "Search Error",
-        description: "Sorry, AI search is temporarily unavailable.",
-        variant: "destructive",
+        title: "Search",
+        description: "Please try browsing our product categories instead.",
+        duration: 5000,
       })
     } finally {
       setIsLoading(false)
@@ -53,7 +61,7 @@ export default function AIProductSearch() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Try: 'I need a gift for my tech-savvy friend' or 'Best headphones under ৳5000'"
-          className="flex-1 rounded-r-none"
+          className="flex-1 rounded-r-none text-black placeholder:text-gray-500"
           onKeyPress={(e) => e.key === "Enter" && handleAISearch()}
         />
         <Button

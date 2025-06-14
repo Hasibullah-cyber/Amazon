@@ -6,7 +6,7 @@ import { ShoppingCart, Menu, X, User, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/components/cart-provider"
 import CartDrawer from "@/components/cart-drawer"
-import AIProductSearch from "@/components/ai-product-search"
+import RegularSearch from "@/components/regular-search"
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -37,7 +37,7 @@ export default function Navbar() {
 
             {/* Search bar */}
             <div className="flex flex-1 mx-4">
-              <AIProductSearch />
+              <RegularSearch />
             </div>
 
             {/* Account & Orders */}
