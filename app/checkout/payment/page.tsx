@@ -13,6 +13,7 @@ interface PaymentMethod {
   id: string
   type: "card" | "mobile" | "cod"
   name: string
+  icon: React.ReactNode
   description: string
 }
 
@@ -37,8 +38,10 @@ export default function PaymentPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
 
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem("cart") || "[]")
-    setCartItems(savedCart)
+    if (typeof window !== "undefined") {
+      const savedCart = JSON.parse(localStorage.getItem("cart") || "[]")
+      setCartItems(savedCart)
+    }
   }, [])
 
   const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
@@ -47,29 +50,42 @@ export default function PaymentPage() {
   const grandTotal = totalPrice + shipping + vat
 
   const paymentMethods: PaymentMethod[] = [
-    { id: "bkash", type: "mobile", name: "bKash", description: "Pay with your bKash mobile wallet" },
-    { id: "nagad", type: "mobile", name: "Nagad", description: "Pay with your Nagad mobile wallet" },
-    { id: "rocket", type: "mobile", name: "Rocket", description: "Pay with your Rocket mobile wallet" },
-    { id: "card", type: "card", name: "Credit/Debit Card", description: "Visa, Mastercard, American Express" },
-    { id: "cod", type: "cod", name: "Cash on Delivery", description: "Pay when your order is delivered" },
+    {
+      id: "bkash",
+      type: "mobile",
+      name: "bKash",
+      icon: <div className="w-8 h-8 bg-pink-500 rounded flex items-center justify-center text-white font-bold text-sm">bK</div>,
+      description: "Pay with your bKash mobile wallet",
+    },
+    {
+      id: "nagad",
+      type: "mobile",
+      name: "Nagad",
+      icon: <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center text-white font-bold text-sm">N</div>,
+      description: "Pay with your Nagad mobile wallet",
+    },
+    {
+      id: "rocket",
+      type: "mobile",
+      name: "Rocket",
+      icon: <div className="w-8 h-8 bg-purple-500 rounded flex items-center justify-center text-white font-bold text-sm">R</div>,
+      description: "Pay with your Rocket mobile wallet",
+    },
+    {
+      id: "card",
+      type: "card",
+      name: "Credit/Debit Card",
+      icon: <CreditCard className="h-6 w-6 text-blue-600" />,
+      description: "Visa, Mastercard, American Express",
+    },
+    {
+      id: "cod",
+      type: "cod",
+      name: "Cash on Delivery",
+      icon: <Banknote className="h-6 w-6 text-green-600" />,
+      description: "Pay when your order is delivered",
+    },
   ]
-
-  const renderIcon = (id: string) => {
-    switch (id) {
-      case "bkash":
-        return <div className="w-8 h-8 bg-pink-500 rounded flex items-center justify-center text-white font-bold text-sm">bK</div>
-      case "nagad":
-        return <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center text-white font-bold text-sm">N</div>
-      case "rocket":
-        return <div className="w-8 h-8 bg-purple-500 rounded flex items-center justify-center text-white font-bold text-sm">R</div>
-      case "card":
-        return <CreditCard className="h-6 w-6 text-blue-600" />
-      case "cod":
-        return <Banknote className="h-6 w-6 text-green-600" />
-      default:
-        return null
-    }
-  }
 
   const handlePlaceOrder = async () => {
     if (!selectedPayment) {
@@ -167,7 +183,7 @@ export default function PaymentPage() {
                     className="mr-3"
                   />
                   <div className="flex items-center flex-1">
-                    {renderIcon(method.id)}
+                    {method.icon}
                     <div className="ml-3">
                       <h3 className="font-medium text-black">{method.name}</h3>
                       <p className="text-sm text-gray-600">{method.description}</p>
@@ -316,4 +332,4 @@ export default function PaymentPage() {
       </div>
     </div>
   )
-              }
+      }
