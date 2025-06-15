@@ -17,25 +17,32 @@ export default function PaymentPage() {
   })
 
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("orderData")) || {}
-    const items = data.cartItems || []
-    const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-    const vat = Math.round(subtotal * 0.1)
-    const shipping = 120
-    const total = subtotal + shipping + vat
+    if (typeof window !== "undefined") {
+      const data = JSON.parse(localStorage.getItem("orderData") || "{}")
+      const items = data.cartItems || []
+      const subtotal = items.reduce(
+        (sum: number, item: any) => sum + item.price * item.quantity,
+        0
+      )
+      const vat = Math.round(subtotal * 0.1)
+      const shipping = 120
+      const total = subtotal + shipping + vat
 
-    setCartData({ cartItems: items, subtotal, shipping, vat, total })
+      setCartData({ cartItems: items, subtotal, shipping, vat, total })
+    }
   }, [])
 
   const handlePlaceOrder = () => {
-    const orderInfo = {
-      ...cartData,
-      paymentMethod,
-      paymentStatus: paymentMethod === "online" ? "Confirmed" : "Pending",
-      transactionId: paymentMethod === "online" ? "SSL123456" : "COD",
+    if (typeof window !== "undefined") {
+      const orderInfo = {
+        ...cartData,
+        paymentMethod,
+        paymentStatus: paymentMethod === "online" ? "Confirmed" : "Pending",
+        transactionId: paymentMethod === "online" ? "SSL123456" : "COD",
+      }
+      localStorage.setItem("orderData", JSON.stringify(orderInfo))
+      window.location.href = "/order-confirmation"
     }
-    localStorage.setItem("orderData", JSON.stringify(orderInfo))
-    window.location.href = "/order-confirmation"
   }
 
   return (
