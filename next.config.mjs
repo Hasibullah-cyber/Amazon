@@ -11,8 +11,8 @@ const nextConfig = {
   },
   experimental: {
     allowedDevOrigins: [
-      /.*\.replit\.dev$/,
-      /.*\.pike\.replit\.dev$/,
+      "*.replit.dev",
+      "*.pike.replit.dev",
     ],
   },
 }
