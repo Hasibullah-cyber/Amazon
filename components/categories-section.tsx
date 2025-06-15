@@ -1,5 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
+import Link from "next/link"
 
 // Define the categories
 const categories = [
@@ -41,9 +42,6 @@ export default function CategoriesSection() {
     </section>
   )
 }
-const categories = [
-  {
-    id: "electronics",
     name: "Electronics",
     description: "Cutting-edge gadgets and devices",
     image: "/placeholder.svg?height=400&width=400",
