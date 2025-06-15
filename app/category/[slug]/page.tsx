@@ -70,8 +70,8 @@ const categories = {
   },
 }
 
-export default function CategoryPage({ params }: { params: { slug: string } }) {
-  const { slug } = params
+export default async function CategoryPage({ params }: { params: { slug: string } }) {
+  const { slug } = await params
   const category = categories[slug as keyof typeof categories]
 
   if (!category) {
