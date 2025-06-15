@@ -17,7 +17,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
   const handleCheckout = () => {
     // Redirect to location selection page
-    window.location.href = "/checkout/location"
+    window.location.href = "/checkout/payment"
     onClose()
   }
 
