@@ -11,10 +11,6 @@ const nextConfig = {
     domains: ['localhost'],
   },
   experimental: {
-    allowedDevOrigins: [
-      "*.replit.dev",
-      "*.pike.replit.dev",
-    ],
   },
   async rewrites() {
     return []
