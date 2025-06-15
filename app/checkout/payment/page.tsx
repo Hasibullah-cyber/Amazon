@@ -6,8 +6,19 @@ const PaymentPage = () => {
   const [cardNumber, setCardNumber] = useState('');
 
   useEffect(() => {
-    const items = JSON.parse(localStorage.getItem('cart') || '[]');
-    setCartItems(items);
+    let storedCart = localStorage.getItem('cart');
+    
+    // If no cart in storage, create dummy cart (for phone testing)
+    if (!storedCart) {
+      const dummyCart = [
+        { name: 'Phone', price: 299.99, quantity: 1 },
+        { name: 'Charger', price: 19.99, quantity: 2 }
+      ];
+      localStorage.setItem('cart', JSON.stringify(dummyCart));
+      storedCart = JSON.stringify(dummyCart);
+    }
+
+    setCartItems(JSON.parse(storedCart));
   }, []);
 
   const getTotal = () =>
