@@ -1,11 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { CreditCard, Truck } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { CreditCard, Truck } from "lucide-react"
 
 export default function PaymentPage() {
   const router = useRouter()
@@ -30,32 +30,29 @@ export default function PaymentPage() {
 
   const handlePlaceOrder = async () => {
     const order = {
-      orderId: "#HS-" + Date.now(),
-      cartItems: cart,
+      order_id: "#HS-" + Date.now(),
+      name,
+      phone,
+      city,
+      address,
+      payment_method: selectedPayment,
+      cart_items: cart,
       subtotal,
       vat,
       shipping,
-      totalAmount,
-      paymentMethod: selectedPayment,
-      transactionId: "",
-      estimatedDelivery: "1-2 business days",
-      name,
-      address,
-      phone,
-      city,
+      total: totalAmount,
     }
 
-    // Save order in Supabase
-    const { error } = await supabase.from("orders").insert([order])
+    const { error } = await supabase.from("orders").insert(order)
+
     if (error) {
-      console.error("Supabase error:", error)
-      alert("Failed to save order.")
-      return
+      console.error("Error saving order to Supabase:", error.message)
+      alert("Order failed! Try again.")
+    } else {
+      localStorage.removeItem("cart")
+      localStorage.setItem("order", JSON.stringify(order))
+      router.push("/order-confirmation")
     }
-
-    localStorage.setItem("order", JSON.stringify(order))
-    localStorage.removeItem("cart")
-    router.push("/order-confirmation")
   }
 
   return (
@@ -90,7 +87,7 @@ export default function PaymentPage() {
           </div>
         </Card>
 
-        {/* Address & Summary */}
+        {/* Shipping Info & Summary */}
         <Card className="p-6 space-y-4">
           <h2 className="text-xl font-semibold mb-2 flex items-center">
             <Truck className="w-5 h-5 mr-2" /> Shipping Information
