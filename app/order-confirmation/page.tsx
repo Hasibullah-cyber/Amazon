@@ -12,10 +12,9 @@ export default function OrderConfirmationPage() {
   useEffect(() => {
     const storedOrder = localStorage.getItem("order")
     const storedCart = localStorage.getItem("cart")
+    let parsedOrder = storedOrder ? JSON.parse(storedOrder) : null
 
-    if (storedOrder) {
-      setOrder(JSON.parse(storedOrder))
-    } else if (storedCart) {
+    if (!parsedOrder?.cartItems?.length && storedCart) {
       const cartItems = JSON.parse(storedCart)
       const subtotal = cartItems.reduce(
         (total: number, item: any) => total + item.price * item.quantity,
@@ -25,7 +24,7 @@ export default function OrderConfirmationPage() {
       const shipping = 120
       const totalAmount = subtotal + vat + shipping
 
-      const fallbackOrder = {
+      parsedOrder = {
         orderId: "#HS-2025-XYZ",
         name: "Guest User",
         address: "123 Default Street",
@@ -40,9 +39,9 @@ export default function OrderConfirmationPage() {
         vat,
         totalAmount,
       }
-
-      setOrder(fallbackOrder)
     }
+
+    setOrder(parsedOrder)
   }, [])
 
   if (!order) return <div className="p-6">Loading your order...</div>
@@ -56,7 +55,7 @@ export default function OrderConfirmationPage() {
           <p className="text-green-700 mb-4">Thank you for shopping with Hasib Shop</p>
           <div className="bg-white p-4 rounded-md inline-block">
             <p className="text-sm text-gray-600">Order Number</p>
-            <p className="text-xl font-bold text-black">{order.orderId}</p>
+            <p className="text-xl font-bold text-black">{order.orderId || "#HS-2025-XYZ"}</p>
           </div>
         </Card>
 
@@ -80,7 +79,7 @@ export default function OrderConfirmationPage() {
                 </div>
                 <div className="bg-blue-50 p-3 rounded-md">
                   <p className="text-sm text-blue-800">
-                    <strong>Estimated Delivery:</strong> {order.estimatedDelivery}
+                    <strong>Estimated Delivery:</strong> {order.estimatedDelivery || "1-2 business days"}
                   </p>
                 </div>
               </div>
@@ -139,7 +138,7 @@ export default function OrderConfirmationPage() {
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping:</span>
-                  <span>৳{order.shipping}</span>
+                  <span>৳{order.shipping || 120}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>VAT (10%):</span>
