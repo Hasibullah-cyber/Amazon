@@ -10,7 +10,7 @@ export default function OrderConfirmationPage() {
   const [order, setOrder] = useState<any>(null)
 
   useEffect(() => {
-    const stored = localStorage.getItem("orderData")
+    const stored = localStorage.getItem("order") // ✅ Fixed key here
     if (stored) {
       setOrder(JSON.parse(stored))
     }
