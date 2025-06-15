@@ -1,11 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { supabase } from "@/lib/supabaseClient"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { CreditCard, Truck } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase" // ✅ Ensure this exists and is correct
 
 export default function PaymentPage() {
   const router = useRouter()
@@ -18,9 +18,7 @@ export default function PaymentPage() {
 
   useEffect(() => {
     const storedCart = localStorage.getItem("cart")
-    if (storedCart) {
-      setCart(JSON.parse(storedCart))
-    }
+    if (storedCart) setCart(JSON.parse(storedCart))
   }, [])
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
@@ -29,27 +27,30 @@ export default function PaymentPage() {
   const totalAmount = subtotal + shipping + vat
 
   const handlePlaceOrder = async () => {
-    const orderId = "#HS-" + Date.now()
     const order = {
-      order_id: orderId,
+      order_id: "#HS-" + Date.now(),
+      items: cart,
+      subtotal,
+      shipping,
+      vat,
+      total: totalAmount,
+      payment_method: selectedPayment,
+      transaction_id: "",
       name,
       address,
-      city,
       phone,
-      payment_method: selectedPayment,
-      subtotal,
-      vat,
-      shipping,
-      total_amount: totalAmount,
+      city,
+      created_at: new Date().toISOString(),
     }
 
     const { error } = await supabase.from("orders").insert([order])
     if (error) {
-      alert("Order failed: " + error.message)
+      alert("Failed to place order")
+      console.error(error)
       return
     }
 
-    localStorage.setItem("order", JSON.stringify({ ...order, cartItems: cart }))
+    localStorage.setItem("order", JSON.stringify(order))
     localStorage.removeItem("cart")
     router.push("/order-confirmation")
   }
