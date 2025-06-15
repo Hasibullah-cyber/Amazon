@@ -1,90 +1,79 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const PaymentPage = () => {
   const [cartItems, setCartItems] = useState([]);
   const [address, setAddress] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
 
   useEffect(() => {
-    const storedCart = localStorage.getItem('cart');
-    if (storedCart) {
-      setCartItems(JSON.parse(storedCart));
-    }
+    const items = JSON.parse(localStorage.getItem('cart') || '[]');
+    setCartItems(items);
   }, []);
 
+  const getTotal = () =>
+    cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+
   const handlePlaceOrder = () => {
-    if (!address || !paymentMethod) {
-      alert('Please complete all fields!');
+    if (!address || !cardNumber) {
+      alert('Please fill in all fields');
       return;
     }
-
-    alert('✅ Order placed successfully!');
+    alert('✅ Order Placed Successfully!');
     localStorage.removeItem('cart');
     setCartItems([]);
     setAddress('');
-    setPaymentMethod('');
+    setCardNumber('');
   };
 
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-
   return (
-    <div className="max-w-3xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Amazon-style Checkout</h1>
+    <div className="max-w-4xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6">Checkout</h1>
 
-      {/* Address Section */}
-      <div className="mb-4">
-        <label className="block font-semibold mb-1">Shipping Address</label>
+      {/* Address */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-2">Delivery Address</h2>
         <textarea
           className="w-full border p-2 rounded"
           rows={3}
           value={address}
           onChange={(e) => setAddress(e.target.value)}
+          placeholder="Enter your delivery address"
         />
       </div>
 
-      {/* Payment Method Section */}
-      <div className="mb-4">
-        <label className="block font-semibold mb-1">Payment Method</label>
+      {/* Payment Method */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-2">Payment Method</h2>
         <input
           type="text"
           className="w-full border p-2 rounded"
-          placeholder="e.g. **** **** **** 1234"
-          value={paymentMethod}
-          onChange={(e) => setPaymentMethod(e.target.value)}
+          value={cardNumber}
+          onChange={(e) => setCardNumber(e.target.value)}
+          placeholder="Card Number (e.g. **** **** **** 1234)"
         />
       </div>
 
-      {/* Cart Summary */}
-      <div className="border-t pt-4 mb-4">
-        <h2 className="text-xl font-semibold mb-2">Order Summary</h2>
-        {cartItems.length === 0 ? (
-          <p className="text-gray-500">Your cart is empty.</p>
-        ) : (
-          <ul>
-            {cartItems.map((item, idx) => (
-              <li key={idx} className="flex justify-between mb-1">
-                <span>{item.name} (x{item.quantity})</span>
-                <span>${(item.price * item.quantity).toFixed(2)}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-        <div className="mt-2 font-bold flex justify-between">
+      {/* Order Summary */}
+      <div className="border-t pt-4">
+        <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+        {cartItems.map((item, index) => (
+          <div key={index} className="flex justify-between mb-2">
+            <span>{item.name} (x{item.quantity})</span>
+            <span>${(item.price * item.quantity).toFixed(2)}</span>
+          </div>
+        ))}
+        <div className="flex justify-between font-bold mt-4">
           <span>Total:</span>
-          <span>${total.toFixed(2)}</span>
+          <span>${getTotal().toFixed(2)}</span>
         </div>
       </div>
 
-      {/* Place Order Button */}
+      {/* Place Order */}
       <button
         onClick={handlePlaceOrder}
-        disabled={cartItems.length === 0}
-        className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded disabled:opacity-50"
+        className="mt-6 bg-yellow-500 hover:bg-yellow-600 text-black py-2 px-6 rounded w-full font-bold"
       >
-        Place Your Order
+        Place your order
       </button>
     </div>
   );
