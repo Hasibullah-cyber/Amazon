@@ -164,7 +164,7 @@ export default function PaymentPage() {
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen py-8">
+    <div className="bg-gray-100 min-h-screen py-8" suppressHydrationWarning>
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="bg-white p-4 mb-4 border-b">
           <h1 className="text-2xl font-medium text-black">Select a payment method</h1>

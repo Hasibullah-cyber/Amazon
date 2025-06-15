@@ -55,7 +55,7 @@ export default function LocationPage() {
       description: "Your shipping details have been saved.",
     })
 
-    router.push("/payment")
+    router.push("/checkout/payment")
   }
 
   return (
