@@ -42,13 +42,12 @@ export default function CategoriesSection() {
               key={category.id}
               className="amazon-card text-center hover:shadow-md transition-shadow"
             >
-              <div className="relative h-32 mb-4 overflow-hidden rounded-lg">
+              <div className="relative h-32 mb-4 overflow-hidden rounded-lg" style={{ position: 'relative' }}>
                 <Image
                   src="/placeholder.svg?height=300&width=300"
                   alt={category.name}
                   fill
                   className="object-cover hover:scale-105 transition-transform duration-300"
-                  style={{ position: 'absolute' }}
                 />
               </div>
               <h3 className="amazon-title text-lg">{category.name}</h3>
