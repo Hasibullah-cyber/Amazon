@@ -1,18 +1,18 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import type React from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { CreditCard, Banknote, Shield, Lock } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
 
 interface PaymentMethod {
   id: string
   type: "card" | "mobile" | "cod"
   name: string
-  icon: React.ReactNode
   description: string
 }
 
@@ -25,7 +25,6 @@ interface CartItem {
 export default function PaymentPage() {
   const router = useRouter()
   const { toast } = useToast()
-
   const [selectedPayment, setSelectedPayment] = useState<string>("")
   const [cardDetails, setCardDetails] = useState({
     number: "",
@@ -38,12 +37,8 @@ export default function PaymentPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
 
   useEffect(() => {
-    try {
-      const savedCart = JSON.parse(localStorage.getItem("cart") || "[]")
-      if (Array.isArray(savedCart)) setCartItems(savedCart)
-    } catch {
-      setCartItems([])
-    }
+    const savedCart = JSON.parse(localStorage.getItem("cart") || "[]")
+    setCartItems(savedCart)
   }, [])
 
   const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
@@ -52,103 +47,100 @@ export default function PaymentPage() {
   const grandTotal = totalPrice + shipping + vat
 
   const paymentMethods: PaymentMethod[] = [
-    {
-      id: "bkash",
-      type: "mobile",
-      name: "bKash",
-      icon: <div className="w-8 h-8 bg-pink-500 rounded text-white font-bold flex items-center justify-center">bK</div>,
-      description: "Pay with your bKash mobile wallet",
-    },
-    {
-      id: "nagad",
-      type: "mobile",
-      name: "Nagad",
-      icon: <div className="w-8 h-8 bg-orange-500 rounded text-white font-bold flex items-center justify-center">N</div>,
-      description: "Pay with your Nagad mobile wallet",
-    },
-    {
-      id: "rocket",
-      type: "mobile",
-      name: "Rocket",
-      icon: <div className="w-8 h-8 bg-purple-500 rounded text-white font-bold flex items-center justify-center">R</div>,
-      description: "Pay with your Rocket mobile wallet",
-    },
-    {
-      id: "card",
-      type: "card",
-      name: "Credit/Debit Card",
-      icon: <CreditCard className="h-6 w-6 text-blue-600" />,
-      description: "Visa, Mastercard, American Express",
-    },
-    {
-      id: "cod",
-      type: "cod",
-      name: "Cash on Delivery",
-      icon: <Banknote className="h-6 w-6 text-green-600" />,
-      description: "Pay when your order is delivered",
-    },
+    { id: "bkash", type: "mobile", name: "bKash", description: "Pay with your bKash mobile wallet" },
+    { id: "nagad", type: "mobile", name: "Nagad", description: "Pay with your Nagad mobile wallet" },
+    { id: "rocket", type: "mobile", name: "Rocket", description: "Pay with your Rocket mobile wallet" },
+    { id: "card", type: "card", name: "Credit/Debit Card", description: "Visa, Mastercard, American Express" },
+    { id: "cod", type: "cod", name: "Cash on Delivery", description: "Pay when your order is delivered" },
   ]
 
-  const handlePlaceOrder = () => {
+  const renderIcon = (id: string) => {
+    switch (id) {
+      case "bkash":
+        return <div className="w-8 h-8 bg-pink-500 rounded flex items-center justify-center text-white font-bold text-sm">bK</div>
+      case "nagad":
+        return <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center text-white font-bold text-sm">N</div>
+      case "rocket":
+        return <div className="w-8 h-8 bg-purple-500 rounded flex items-center justify-center text-white font-bold text-sm">R</div>
+      case "card":
+        return <CreditCard className="h-6 w-6 text-blue-600" />
+      case "cod":
+        return <Banknote className="h-6 w-6 text-green-600" />
+      default:
+        return null
+    }
+  }
+
+  const handlePlaceOrder = async () => {
     if (!selectedPayment) {
       toast({
-        title: "Select a payment method",
-        description: "Please choose how you want to pay",
+        title: "Payment Method Required",
+        description: "Please select a payment method to continue",
         variant: "destructive",
       })
       return
     }
 
-    if (selectedPayment === "card" &&
-      (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv || !cardDetails.name)
-    ) {
-      toast({
-        title: "Incomplete card details",
-        description: "Fill out all card fields",
-        variant: "destructive",
-      })
-      return
+    if (selectedPayment === "card") {
+      if (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv || !cardDetails.name) {
+        toast({
+          title: "Card Details Required",
+          description: "Please fill in all card details",
+          variant: "destructive",
+        })
+        return
+      }
     }
 
-    if (["bkash", "nagad", "rocket"].includes(selectedPayment) && !mobileNumber) {
-      toast({
-        title: "Mobile number required",
-        description: "Enter your mobile number",
-        variant: "destructive",
-      })
-      return
+    if (["bkash", "nagad", "rocket"].includes(selectedPayment)) {
+      if (!mobileNumber) {
+        toast({
+          title: "Mobile Number Required",
+          description: "Please enter your mobile number",
+          variant: "destructive",
+        })
+        return
+      }
     }
 
     setIsProcessing(true)
     setTimeout(() => {
       setIsProcessing(false)
       toast({
-        title: "Order Placed!",
-        description: "You will receive a confirmation email shortly.",
+        title: "Order Placed Successfully!",
+        description: "Your order has been confirmed. You will receive a confirmation email shortly.",
         duration: 5000,
       })
       router.push("/order-confirmation")
     }, 3000)
   }
 
-  const formatCardNumber = (value: string) =>
-    value.replace(/\D/g, "").replace(/(.{4})/g, "$1 ").trim().slice(0, 19)
+  const formatCardNumber = (value: string) => {
+    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "")
+    const matches = v.match(/\d{4,16}/g)
+    const match = (matches && matches[0]) || ""
+    const parts = []
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4))
+    }
+    return parts.join(" ")
+  }
 
   const formatExpiry = (value: string) => {
-    const v = value.replace(/\D/g, "").slice(0, 4)
-    return v.length >= 3 ? `${v.slice(0, 2)}/${v.slice(2)}` : v
+    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "")
+    if (v.length >= 2) return v.substring(0, 2) + "/" + v.substring(2, 4)
+    return v
   }
 
   return (
     <div className="bg-gray-100 min-h-screen py-8">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="bg-white p-4 mb-4 border-b">
-          <h1 className="text-2xl font-medium">Select a payment method</h1>
-          <p className="text-sm text-gray-600">Choose how you want to pay for your order</p>
+          <h1 className="text-2xl font-medium text-black">Select a payment method</h1>
+          <p className="text-sm text-gray-600 mt-1">Choose how you want to pay for your order</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Payment Section */}
           <div className="lg:col-span-2 space-y-4">
             <Card className="p-4 bg-green-50 border-green-200">
               <div className="flex items-center">
@@ -163,7 +155,7 @@ export default function PaymentPage() {
             {paymentMethods.map((method) => (
               <Card
                 key={method.id}
-                className={`p-4 cursor-pointer ${selectedPayment === method.id ? "ring-2 ring-[#ff9900] bg-orange-50" : "hover:shadow"}`}
+                className={`p-4 cursor-pointer transition-all ${selectedPayment === method.id ? "ring-2 ring-[#ff9900] bg-orange-50" : "hover:shadow-md"}`}
               >
                 <div className="flex items-center">
                   <input
@@ -175,72 +167,78 @@ export default function PaymentPage() {
                     className="mr-3"
                   />
                   <div className="flex items-center flex-1">
-                    {method.icon}
+                    {renderIcon(method.id)}
                     <div className="ml-3">
-                      <h3 className="font-medium">{method.name}</h3>
+                      <h3 className="font-medium text-black">{method.name}</h3>
                       <p className="text-sm text-gray-600">{method.description}</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Conditional Inputs */}
                 {selectedPayment === method.id && (
-                  <div className="mt-4 pl-8 space-y-4">
+                  <div className="mt-4 pl-8">
                     {method.type === "card" && (
-                      <>
-                        <Input
-                          placeholder="Card Number"
-                          value={cardDetails.number}
-                          maxLength={19}
-                          onChange={(e) =>
-                            setCardDetails({ ...cardDetails, number: formatCardNumber(e.target.value) })
-                          }
-                        />
-                        <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
                           <Input
-                            placeholder="MM/YY"
-                            maxLength={5}
-                            value={cardDetails.expiry}
-                            onChange={(e) =>
-                              setCardDetails({ ...cardDetails, expiry: formatExpiry(e.target.value) })
-                            }
-                          />
-                          <Input
-                            placeholder="CVV"
-                            maxLength={4}
-                            type="password"
-                            value={cardDetails.cvv}
-                            onChange={(e) =>
-                              setCardDetails({ ...cardDetails, cvv: e.target.value.replace(/\D/g, "") })
-                            }
+                            value={cardDetails.number}
+                            onChange={(e) => setCardDetails({ ...cardDetails, number: formatCardNumber(e.target.value) })}
+                            placeholder="1234 5678 9012 3456"
+                            maxLength={19}
                           />
                         </div>
-                        <Input
-                          placeholder="Cardholder Name"
-                          value={cardDetails.name}
-                          onChange={(e) =>
-                            setCardDetails({ ...cardDetails, name: e.target.value })
-                          }
-                        />
-                      </>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                            <Input
+                              value={cardDetails.expiry}
+                              onChange={(e) => setCardDetails({ ...cardDetails, expiry: formatExpiry(e.target.value) })}
+                              placeholder="MM/YY"
+                              maxLength={5}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                            <Input
+                              value={cardDetails.cvv}
+                              onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value.replace(/\D/g, "") })}
+                              placeholder="123"
+                              maxLength={4}
+                              type="password"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Cardholder Name</label>
+                          <Input
+                            value={cardDetails.name}
+                            onChange={(e) => setCardDetails({ ...cardDetails, name: e.target.value })}
+                            placeholder="John Doe"
+                          />
+                        </div>
+                      </div>
                     )}
 
                     {method.type === "mobile" && (
-                      <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
                         <Input
-                          placeholder="+8801XXXXXXXXX"
                           value={mobileNumber}
                           onChange={(e) => setMobileNumber(e.target.value)}
+                          placeholder="+880 1XXXXXXXXX"
                         />
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 mt-1">
                           You will be redirected to {method.name} to complete the payment
                         </p>
-                      </>
+                      </div>
                     )}
 
                     {method.type === "cod" && (
-                      <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-md text-sm text-yellow-800">
-                        <strong>Note:</strong> You will pay ৳{grandTotal} in cash on delivery.
+                      <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200">
+                        <p className="text-sm text-yellow-800">
+                          <strong>Note:</strong> You will pay ৳{grandTotal} in cash when your order is delivered. Please have the exact amount ready.
+                        </p>
                       </div>
                     )}
                   </div>
@@ -249,53 +247,68 @@ export default function PaymentPage() {
             ))}
           </div>
 
-          {/* Order Summary */}
           <div className="lg:col-span-1">
             <Card className="p-4 sticky top-4">
-              <h3 className="text-lg font-medium mb-4">Order Summary</h3>
+              <h3 className="text-lg font-medium text-black mb-4">Order Summary</h3>
 
               <div className="space-y-3 mb-4">
                 {cartItems.map((item, index) => (
-                  <div key={index} className="flex justify-between items-center text-sm">
-                    <div>
-                      <p className="font-medium">{item.name}</p>
+                  <div key={index} className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-gray-200 rounded"></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{item.name}</p>
                       <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
                     </div>
-                    <span>৳{item.price * item.quantity}</span>
+                    <span className="text-sm">৳{item.price * item.quantity}</span>
                   </div>
                 ))}
               </div>
 
               <hr className="my-4" />
+
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between"><span>Items:</span><span>৳{totalPrice}</span></div>
-                <div className="flex justify-between"><span>Shipping:</span><span>৳{shipping}</span></div>
-                <div className="flex justify-between"><span>VAT (10%):</span><span>৳{vat}</span></div>
+                <div className="flex justify-between">
+                  <span>Items:</span>
+                  <span>৳{totalPrice}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Shipping:</span>
+                  <span>৳{shipping}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>VAT (10%):</span>
+                  <span>৳{vat}</span>
+                </div>
                 <hr className="my-2" />
                 <div className="flex justify-between font-medium text-base">
-                  <span>Total:</span><span>৳{grandTotal}</span>
+                  <span>Order Total:</span>
+                  <span className="amazon-price">৳{grandTotal}</span>
                 </div>
               </div>
 
-              <Button
-                onClick={handlePlaceOrder}
-                disabled={!selectedPayment || isProcessing}
-                className="w-full mt-6"
-              >
-                {isProcessing ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                    Processing...
-                  </div>
-                ) : "Place Order"}
-              </Button>
+              <div className="mt-6">
+                <Button
+                  onClick={handlePlaceOrder}
+                  className="amazon-button w-full"
+                  disabled={!selectedPayment || isProcessing}
+                >
+                  {isProcessing ? (
+                    <div className="flex items-center">
+                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                      Processing...
+                    </div>
+                  ) : (
+                    "Place Order"
+                  )}
+                </Button>
+              </div>
 
               <div className="mt-4 text-xs text-gray-500">
-                <div className="flex items-center mb-1">
+                <div className="flex items-center mb-2">
                   <Lock className="h-4 w-4 mr-1" />
-                  SSL encrypted payment
+                  <span>SSL encrypted secure payment</span>
                 </div>
-                <p>By placing your order, you agree to our Terms and Privacy Policy.</p>
+                <p>By placing your order, you agree to Hasib Shop's Terms of Service and Privacy Policy.</p>
               </div>
             </Card>
           </div>
@@ -303,4 +316,4 @@ export default function PaymentPage() {
       </div>
     </div>
   )
-}
+              }
