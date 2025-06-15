@@ -1,61 +1,54 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
-interface CartItem {
-  name: string
-  price: number
-  quantity: number
-}
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 export default function PaymentPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [cartItems, setCartItems] = useState<{ name: string; price: number; quantity: number }[]>([])
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    const storedCart = localStorage.getItem("cart")
+    if (storedCart) {
       try {
-        const savedCart = JSON.parse(localStorage.getItem("cart") || "[]")
-        setCartItems(savedCart)
-      } catch (error) {
-        console.error("Error reading cart from localStorage:", error)
+        setCartItems(JSON.parse(storedCart))
+      } catch {
+        setCartItems([])
       }
     }
   }, [])
 
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  )
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
   return (
-    <div className="p-4 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Payment Summary</h1>
+    <div className="min-h-screen bg-gray-100 p-4">
+      <Card className="max-w-xl mx-auto p-6">
+        <h1 className="text-xl font-bold mb-4">Payment Page</h1>
 
-      {cartItems.length === 0 ? (
-        <p>Your cart is empty.</p>
-      ) : (
-        <div className="space-y-4">
-          {cartItems.map((item, index) => (
-            <div
-              key={index}
-              className="border rounded p-4 flex justify-between items-center"
-            >
-              <div>
-                <p className="font-medium">{item.name}</p>
-                <p className="text-sm text-gray-600">
-                  Quantity: {item.quantity}
-                </p>
-              </div>
-              <p className="font-semibold">৳{item.price * item.quantity}</p>
+        {cartItems.length > 0 ? (
+          <>
+            <ul className="mb-4">
+              {cartItems.map((item, index) => (
+                <li key={index} className="flex justify-between">
+                  <span>{item.name} x{item.quantity}</span>
+                  <span>৳{item.price * item.quantity}</span>
+                </li>
+              ))}
+            </ul>
+            <hr className="my-2" />
+            <div className="flex justify-between font-bold mb-4">
+              <span>Total:</span>
+              <span>৳{total}</span>
             </div>
-          ))}
 
-          <div className="border-t pt-4 flex justify-between font-bold">
-            <span>Total:</span>
-            <span>৳{total}</span>
-          </div>
-        </div>
-      )}
+            <Input placeholder="Enter Card or Mobile Number" className="mb-2" />
+            <Button className="w-full">Pay Now</Button>
+          </>
+        ) : (
+          <p>Your cart is empty.</p>
+        )}
+      </Card>
     </div>
   )
 }
