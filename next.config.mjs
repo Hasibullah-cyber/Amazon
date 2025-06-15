@@ -15,6 +15,22 @@ const nextConfig = {
       "*.pike.replit.dev",
     ],
   },
+  async rewrites() {
+    return []
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+        ],
+      },
+    ]
+  },
 }
 
 export default nextConfig
