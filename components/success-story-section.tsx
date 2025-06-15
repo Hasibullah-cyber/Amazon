@@ -20,6 +20,7 @@ export default function SuccessStorySection() {
                   alt="Hasib Shop Founder"
                   fill
                   className="object-cover"
+                  style={{ position: 'absolute' }}
                 />
               </div>
             </div>

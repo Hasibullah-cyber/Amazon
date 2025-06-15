@@ -1,4 +1,3 @@
-
 import Link from "next/link"
 import Image from "next/image"
 
@@ -43,8 +42,14 @@ export default function CategoriesSection() {
               key={category.id}
               className="amazon-card text-center hover:shadow-md transition-shadow"
             >
-              <div className="aspect-square relative mb-3">
-                <Image src={category.image || "/placeholder.svg"} alt={category.name} fill className="object-contain" />
+              <div className="relative h-32 mb-4 overflow-hidden rounded-lg">
+                <Image
+                  src={`/placeholder.svg?height=150&width=150`}
+                  alt={category.name}
+                  fill
+                  className="object-cover hover:scale-105 transition-transform duration-300"
+                  style={{ position: 'absolute' }}
+                />
               </div>
               <h3 className="amazon-title text-lg">{category.name}</h3>
               <p className="text-sm text-gray-600 mb-2">{category.description}</p>
