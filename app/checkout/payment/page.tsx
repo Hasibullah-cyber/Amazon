@@ -49,8 +49,8 @@ export default function PaymentPage() {
       console.error("Error saving order to Supabase:", error.message)
       alert("Order failed! Try again.")
     } else {
-      localStorage.removeItem("cart")
       localStorage.setItem("order", JSON.stringify(order))
+      localStorage.removeItem("cart")
       router.push("/order-confirmation")
     }
   }
@@ -87,7 +87,7 @@ export default function PaymentPage() {
           </div>
         </Card>
 
-        {/* Shipping Info & Summary */}
+        {/* Address & Summary */}
         <Card className="p-6 space-y-4">
           <h2 className="text-xl font-semibold mb-2 flex items-center">
             <Truck className="w-5 h-5 mr-2" /> Shipping Information
