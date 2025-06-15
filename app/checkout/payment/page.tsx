@@ -1,67 +1,79 @@
-// app/checkout/payment/page.tsx
 "use client"
 
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CreditCard, Truck, CheckCircle } from "lucide-react"
+import Link from "next/link"
 
 export default function PaymentPage() {
-  const [cartItems, setCartItems] = useState<any[]>([])
+  const [cart, setCart] = useState<any[]>([])
+  const [total, setTotal] = useState(0)
+  const [selected, setSelected] = useState("online")
 
   useEffect(() => {
     const storedCart = localStorage.getItem("cart")
     if (storedCart) {
-      setCartItems(JSON.parse(storedCart))
+      const cartItems = JSON.parse(storedCart)
+      setCart(cartItems)
+      const totalAmount = cartItems.reduce((acc: number, item: any) => acc + item.price * item.quantity, 0)
+      setTotal(totalAmount)
     }
   }, [])
 
-  const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
+  const handlePlaceOrder = () => {
+    alert(`Order placed with ${selected === "online" ? "Online Payment" : "Cash on Delivery"}!`)
+  }
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4 flex items-center gap-2">
-        <CreditCard className="w-6 h-6" />
-        Payment Options
-      </h1>
+    <div className="p-4 max-w-2xl mx-auto space-y-4">
+      <h2 className="text-xl font-bold">Select Payment Method</h2>
 
-      <Card className="mb-4 p-4">
-        <h2 className="text-lg font-semibold mb-2">Choose a Payment Method:</h2>
-        <div className="flex flex-col gap-3">
-          <Button variant="outline" className="justify-start">
-            💳 Online Payment
-          </Button>
-          <Button variant="outline" className="justify-start">
-            💵 Cash on Delivery
-          </Button>
-        </div>
-      </Card>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card
+          onClick={() => setSelected("online")}
+          className={`p-4 cursor-pointer ${selected === "online" ? "border-blue-500" : ""}`}
+        >
+          <CreditCard className="mb-2" />
+          <h3 className="font-semibold">Online Payment</h3>
+          <p className="text-sm text-muted-foreground">Pay using card, bKash, or mobile banking.</p>
+        </Card>
+
+        <Card
+          onClick={() => setSelected("cod")}
+          className={`p-4 cursor-pointer ${selected === "cod" ? "border-blue-500" : ""}`}
+        >
+          <Truck className="mb-2" />
+          <h3 className="font-semibold">Cash on Delivery</h3>
+          <p className="text-sm text-muted-foreground">Pay with cash when you receive the order.</p>
+        </Card>
+      </div>
 
       <Card className="p-4">
-        <h2 className="text-lg font-semibold mb-2">Order Summary</h2>
-        {cartItems.length === 0 ? (
-          <p>Your cart is empty.</p>
+        <h3 className="font-semibold text-lg mb-2">Order Summary</h3>
+        {cart.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Your cart is empty.</p>
         ) : (
-          <ul className="mb-4 space-y-2">
-            {cartItems.map((item, index) => (
+          <ul className="space-y-2 text-sm">
+            {cart.map((item, index) => (
               <li key={index} className="flex justify-between">
-                <span>{item.name} × {item.quantity}</span>
+                <span>{item.name} x {item.quantity}</span>
                 <span>${(item.price * item.quantity).toFixed(2)}</span>
               </li>
             ))}
+            <li className="flex justify-between font-bold border-t pt-2">
+              <span>Total</span>
+              <span>${total.toFixed(2)}</span>
+            </li>
           </ul>
         )}
-        <div className="text-right font-bold text-xl">
-          Total: ${totalPrice.toFixed(2)}
-        </div>
       </Card>
 
-      <div className="mt-6 text-center">
-        <Button className="w-full flex items-center justify-center gap-2">
-          <CheckCircle className="w-5 h-5" />
-          Place Order
-        </Button>
-      </div>
+      <Button onClick={handlePlaceOrder} className="w-full">
+        <CheckCircle className="mr-2 h-5 w-5" /> Place Order
+      </Button>
+
+      <Link href="/" className="block text-center text-blue-600 text-sm mt-4">Back to Home</Link>
     </div>
   )
 }
