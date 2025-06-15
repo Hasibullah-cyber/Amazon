@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 
 interface CartItem {
   name: string
@@ -12,29 +12,50 @@ export default function PaymentPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
 
   useEffect(() => {
-    try {
-      const savedCart = JSON.parse(localStorage.getItem("cart") || "[]")
-      setCartItems(savedCart)
-    } catch (error) {
-      console.error("Error loading cart:", error)
+    if (typeof window !== "undefined") {
+      try {
+        const savedCart = JSON.parse(localStorage.getItem("cart") || "[]")
+        setCartItems(savedCart)
+      } catch (error) {
+        console.error("Error reading cart from localStorage:", error)
+      }
     }
   }, [])
 
-  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const total = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  )
 
   return (
-    <div className="min-h-screen bg-white text-black p-4">
-      <h1 className="text-2xl font-bold mb-4">Payment Page</h1>
-      <div className="space-y-2">
-        {cartItems.map((item, i) => (
-          <div key={i} className="border p-2 rounded">
-            <p className="font-medium">{item.name}</p>
-            <p>Quantity: {item.quantity}</p>
-            <p>Subtotal: ৳{item.price * item.quantity}</p>
+    <div className="p-4 max-w-xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Payment Summary</h1>
+
+      {cartItems.length === 0 ? (
+        <p>Your cart is empty.</p>
+      ) : (
+        <div className="space-y-4">
+          {cartItems.map((item, index) => (
+            <div
+              key={index}
+              className="border rounded p-4 flex justify-between items-center"
+            >
+              <div>
+                <p className="font-medium">{item.name}</p>
+                <p className="text-sm text-gray-600">
+                  Quantity: {item.quantity}
+                </p>
+              </div>
+              <p className="font-semibold">৳{item.price * item.quantity}</p>
+            </div>
+          ))}
+
+          <div className="border-t pt-4 flex justify-between font-bold">
+            <span>Total:</span>
+            <span>৳{total}</span>
           </div>
-        ))}
-        <div className="mt-4 font-bold text-lg">Total: ৳{total}</div>
-      </div>
+        </div>
+      )}
     </div>
   )
 }
