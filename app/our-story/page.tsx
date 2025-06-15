@@ -15,6 +15,7 @@ export default function OurStoryPage() {
                 alt="Hasib Shop Journey"
                 fill
                 className="object-cover rounded-md"
+                style={{ position: 'absolute' }}
               />
             </div>
 

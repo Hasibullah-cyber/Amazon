@@ -7,7 +7,7 @@ export default function HeroSection() {
     <section className="relative">
       {/* Hero banner */}
       <div className="relative w-full h-[300px] sm:h-[400px]">
-        <Image src="/placeholder.svg?height=600&width=1600" alt="Hero banner" fill className="object-cover" priority />
+        <Image src="/placeholder.svg?height=600&width=1600" alt="Hero banner" fill className="object-cover" priority style={{ position: 'absolute' }} />
         <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent" />
       </div>
 
@@ -29,13 +29,13 @@ export default function HeroSection() {
             <div className="grid grid-cols-2 gap-2">
               <div className="text-center">
                 <div className="aspect-square relative mb-1">
-                  <Image src="/placeholder.svg?height=150&width=150" alt="Deal 1" fill className="object-contain" />
+                  <Image src="/placeholder.svg?height=150&width=150" alt="Deal 1" fill className="object-contain" style={{ position: 'absolute' }} />
                 </div>
                 <p className="text-xs">Up to 40% off</p>
               </div>
               <div className="text-center">
                 <div className="aspect-square relative mb-1">
-                  <Image src="/placeholder.svg?height=150&width=150" alt="Deal 2" fill className="object-contain" />
+                  <Image src="/placeholder.svg?height=150&width=150" alt="Deal 2" fill className="object-contain" style={{ position: 'absolute' }} />
                 </div>
                 <p className="text-xs">Starting at ৳999</p>
               </div>

@@ -44,7 +44,7 @@ export default function CategoriesSection() {
             >
               <div className="relative h-32 mb-4 overflow-hidden rounded-lg">
                 <Image
-                  src={`/placeholder.svg?height=150&width=150`}
+                  src="/placeholder.svg?height=300&width=300"
                   alt={category.name}
                   fill
                   className="object-cover hover:scale-105 transition-transform duration-300"

@@ -15,6 +15,7 @@ export default function CorporateResponsibilityPage() {
                 alt="Corporate Responsibility"
                 fill
                 className="object-cover rounded-md"
+                style={{ position: 'absolute' }}
               />
             </div>
 
