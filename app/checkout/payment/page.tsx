@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { CreditCard, Truck } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 
 export default function PaymentPage() {
@@ -30,22 +30,26 @@ export default function PaymentPage() {
 
   const handlePlaceOrder = async () => {
     const order = {
-      order_id: "#HS-" + Date.now(),
-      cart_items: cart,
+      orderId: "#HS-" + Date.now(),
+      cartItems: cart,
       subtotal,
       vat,
       shipping,
-      total: totalAmount,
-      payment_method: selectedPayment,
+      totalAmount,
+      paymentMethod: selectedPayment,
+      transactionId: "",
+      estimatedDelivery: "1-2 business days",
       name,
       address,
       phone,
       city,
     }
 
-    const { error } = await supabase.from("orders").insert(order)
+    // Save order in Supabase
+    const { error } = await supabase.from("orders").insert([order])
     if (error) {
-      alert("Failed to place order: " + error.message)
+      console.error("Supabase error:", error)
+      alert("Failed to save order.")
       return
     }
 
@@ -57,6 +61,7 @@ export default function PaymentPage() {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
+        {/* Payment Options */}
         <Card className="p-6 space-y-4">
           <h2 className="text-xl font-semibold mb-2 flex items-center">
             <CreditCard className="w-5 h-5 mr-2" /> Payment Method
@@ -85,6 +90,7 @@ export default function PaymentPage() {
           </div>
         </Card>
 
+        {/* Address & Summary */}
         <Card className="p-6 space-y-4">
           <h2 className="text-xl font-semibold mb-2 flex items-center">
             <Truck className="w-5 h-5 mr-2" /> Shipping Information
