@@ -5,8 +5,12 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { useRouter } from "next/navigation"
 
 export default function PaymentPage() {
+  const router = useRouter()
+
+  const [isMounted, setIsMounted] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState("online")
   const [cartData, setCartData] = useState({
     cartItems: [],
@@ -17,33 +21,38 @@ export default function PaymentPage() {
   })
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const data = JSON.parse(localStorage.getItem("orderData") || "{}")
+    setIsMounted(true)
+
+    try {
+      const rawData = localStorage.getItem("orderData")
+      const data = rawData ? JSON.parse(rawData) : {}
       const items = data.cartItems || []
-      const subtotal = items.reduce(
-        (sum: number, item: any) => sum + item.price * item.quantity,
-        0
-      )
-      const vat = Math.round(subtotal * 0.1)
+      const subtotal = items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0)
       const shipping = 120
+      const vat = Math.round(subtotal * 0.1)
       const total = subtotal + shipping + vat
 
       setCartData({ cartItems: items, subtotal, shipping, vat, total })
+    } catch (error) {
+      console.error("Failed to load orderData:", error)
     }
   }, [])
 
   const handlePlaceOrder = () => {
-    if (typeof window !== "undefined") {
-      const orderInfo = {
-        ...cartData,
-        paymentMethod,
-        paymentStatus: paymentMethod === "online" ? "Confirmed" : "Pending",
-        transactionId: paymentMethod === "online" ? "SSL123456" : "COD",
-      }
-      localStorage.setItem("orderData", JSON.stringify(orderInfo))
-      window.location.href = "/order-confirmation"
+    if (!isMounted) return
+
+    const orderInfo = {
+      ...cartData,
+      paymentMethod,
+      paymentStatus: paymentMethod === "online" ? "Confirmed" : "Pending",
+      transactionId: paymentMethod === "online" ? "SSL123456" : "COD",
     }
+
+    localStorage.setItem("orderData", JSON.stringify(orderInfo))
+    router.push("/order-confirmation")
   }
+
+  if (!isMounted) return null // Prevent server-side mismatch
 
   return (
     <div className="bg-gray-100 min-h-screen py-8">
