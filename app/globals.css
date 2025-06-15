@@ -73,6 +73,29 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Remove default link styling */
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  /* Ensure Amazon styling takes precedence */
+  .amazon-link {
+    color: #007185 !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease;
+  }
+  
+  .amazon-link:hover {
+    color: #c7511f !important;
+    text-decoration: underline !important;
+  }
+  
+  /* Utility class to remove underlines */
+  .no-underline {
+    text-decoration: none !important;
+  }
 }
 
 /* Amazon-like styles using regular CSS instead of @apply */

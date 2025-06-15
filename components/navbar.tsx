@@ -83,25 +83,25 @@ export default function Navbar() {
         <div className="container mx-auto px-4">
           <div className="flex items-center h-10">
             <div className="flex items-center space-x-4 text-sm">
-              <Link href="/#categories" className="text-white hover:text-gray-300">
+              <Link href="/#categories" className="text-white hover:text-gray-300 no-underline">
                 All Categories
               </Link>
-              <Link href="/category/electronics" className="text-white hover:text-gray-300">
+              <Link href="/category/electronics" className="text-white hover:text-gray-300 no-underline">
                 Electronics
               </Link>
-              <Link href="/category/fashion" className="text-white hover:text-gray-300">
+              <Link href="/category/fashion" className="text-white hover:text-gray-300 no-underline">
                 Fashion
               </Link>
-              <Link href="/category/home-living" className="text-white hover:text-gray-300">
+              <Link href="/category/home-living" className="text-white hover:text-gray-300 no-underline">
                 Home & Living
               </Link>
-              <Link href="/category/beauty" className="text-white hover:text-gray-300">
+              <Link href="/category/beauty" className="text-white hover:text-gray-300 no-underline">
                 Beauty
               </Link>
-              <Link href="/#about" className="text-white hover:text-gray-300 hidden md:block">
+              <Link href="/#about" className="text-white hover:text-gray-300 hidden md:block no-underline">
                 About Us
               </Link>
-              <Link href="/#contact" className="text-white hover:text-gray-300 hidden md:block">
+              <Link href="/#contact" className="text-white hover:text-gray-300 hidden md:block no-underline">
                 Contact
               </Link>
             </div>
@@ -119,45 +119,45 @@ export default function Navbar() {
             </div>
             <Link
               href="/#categories"
-              className="block text-white hover:text-gray-300"
+              className="block text-white hover:text-gray-300 no-underline"
               onClick={() => setIsMenuOpen(false)}
             >
               All Categories
             </Link>
             <Link
               href="/category/electronics"
-              className="block text-white hover:text-gray-300"
+              className="block text-white hover:text-gray-300 no-underline"
               onClick={() => setIsMenuOpen(false)}
             >
               Electronics
             </Link>
             <Link
               href="/category/fashion"
-              className="block text-white hover:text-gray-300"
+              className="block text-white hover:text-gray-300 no-underline"
               onClick={() => setIsMenuOpen(false)}
             >
               Fashion
             </Link>
             <Link
               href="/category/home-living"
-              className="block text-white hover:text-gray-300"
+              className="block text-white hover:text-gray-300 no-underline"
               onClick={() => setIsMenuOpen(false)}
             >
               Home & Living
             </Link>
             <Link
               href="/category/beauty"
-              className="block text-white hover:text-gray-300"
+              className="block text-white hover:text-gray-300 no-underline"
               onClick={() => setIsMenuOpen(false)}
             >
               Beauty
             </Link>
-            <Link href="/#about" className="block text-white hover:text-gray-300" onClick={() => setIsMenuOpen(false)}>
+            <Link href="/#about" className="block text-white hover:text-gray-300 no-underline" onClick={() => setIsMenuOpen(false)}>
               About Us
             </Link>
             <Link
               href="/#contact"
-              className="block text-white hover:text-gray-300"
+              className="block text-white hover:text-gray-300 no-underline"
               onClick={() => setIsMenuOpen(false)}
             >
               Contact
