@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
@@ -18,6 +17,12 @@ interface PaymentMethod {
   description: string
 }
 
+interface CartItem {
+  name: string
+  price: number
+  quantity: number
+}
+
 export default function PaymentPage() {
   const router = useRouter()
   const { toast } = useToast()
@@ -30,39 +35,38 @@ export default function PaymentPage() {
   })
   const [mobileNumber, setMobileNumber] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
+  const [cartItems, setCartItems] = useState<CartItem[]>([])
+
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem("cart") || "[]")
+    setCartItems(savedCart)
+  }, [])
+
+  const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
+  const shipping = 120
+  const vat = Math.round(totalPrice * 0.1)
+  const grandTotal = totalPrice + shipping + vat
 
   const paymentMethods: PaymentMethod[] = [
     {
       id: "bkash",
       type: "mobile",
       name: "bKash",
-      icon: (
-        <div className="w-8 h-8 bg-pink-500 rounded flex items-center justify-center text-white font-bold text-sm">
-          bK
-        </div>
-      ),
+      icon: <div className="w-8 h-8 bg-pink-500 rounded flex items-center justify-center text-white font-bold text-sm">bK</div>,
       description: "Pay with your bKash mobile wallet",
     },
     {
       id: "nagad",
       type: "mobile",
       name: "Nagad",
-      icon: (
-        <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center text-white font-bold text-sm">
-          N
-        </div>
-      ),
+      icon: <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center text-white font-bold text-sm">N</div>,
       description: "Pay with your Nagad mobile wallet",
     },
     {
       id: "rocket",
       type: "mobile",
       name: "Rocket",
-      icon: (
-        <div className="w-8 h-8 bg-purple-500 rounded flex items-center justify-center text-white font-bold text-sm">
-          R
-        </div>
-      ),
+      icon: <div className="w-8 h-8 bg-purple-500 rounded flex items-center justify-center text-white font-bold text-sm">R</div>,
       description: "Pay with your Rocket mobile wallet",
     },
     {
@@ -114,8 +118,6 @@ export default function PaymentPage() {
     }
 
     setIsProcessing(true)
-
-    // Simulate payment processing
     setTimeout(() => {
       setIsProcessing(false)
       toast({
@@ -135,34 +137,25 @@ export default function PaymentPage() {
     for (let i = 0, len = match.length; i < len; i += 4) {
       parts.push(match.substring(i, i + 4))
     }
-    if (parts.length) {
-      return parts.join(" ")
-    } else {
-      return v
-    }
+    return parts.join(" ")
   }
 
   const formatExpiry = (value: string) => {
     const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "")
-    if (v.length >= 2) {
-      return v.substring(0, 2) + "/" + v.substring(2, 4)
-    }
+    if (v.length >= 2) return v.substring(0, 2) + "/" + v.substring(2, 4)
     return v
   }
 
   return (
     <div className="bg-gray-100 min-h-screen py-8">
       <div className="container mx-auto px-4 max-w-4xl">
-        {/* Header */}
         <div className="bg-white p-4 mb-4 border-b">
           <h1 className="text-2xl font-medium text-black">Select a payment method</h1>
           <p className="text-sm text-gray-600 mt-1">Choose how you want to pay for your order</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Payment Methods */}
           <div className="lg:col-span-2 space-y-4">
-            {/* Security Notice */}
             <Card className="p-4 bg-green-50 border-green-200">
               <div className="flex items-center">
                 <Shield className="h-5 w-5 text-green-600 mr-2" />
@@ -173,13 +166,10 @@ export default function PaymentPage() {
               </div>
             </Card>
 
-            {/* Payment Methods */}
             {paymentMethods.map((method) => (
               <Card
                 key={method.id}
-                className={`p-4 cursor-pointer transition-all ${
-                  selectedPayment === method.id ? "ring-2 ring-[#ff9900] bg-orange-50" : "hover:shadow-md"
-                }`}
+                className={`p-4 cursor-pointer transition-all ${selectedPayment === method.id ? "ring-2 ring-[#ff9900] bg-orange-50" : "hover:shadow-md"}`}
               >
                 <div className="flex items-center">
                   <input
@@ -199,7 +189,6 @@ export default function PaymentPage() {
                   </div>
                 </div>
 
-                {/* Payment Details Forms */}
                 {selectedPayment === method.id && (
                   <div className="mt-4 pl-8">
                     {method.type === "card" && (
@@ -208,9 +197,7 @@ export default function PaymentPage() {
                           <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
                           <Input
                             value={cardDetails.number}
-                            onChange={(e) =>
-                              setCardDetails({ ...cardDetails, number: formatCardNumber(e.target.value) })
-                            }
+                            onChange={(e) => setCardDetails({ ...cardDetails, number: formatCardNumber(e.target.value) })}
                             placeholder="1234 5678 9012 3456"
                             maxLength={19}
                           />
@@ -229,9 +216,7 @@ export default function PaymentPage() {
                             <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
                             <Input
                               value={cardDetails.cvv}
-                              onChange={(e) =>
-                                setCardDetails({ ...cardDetails, cvv: e.target.value.replace(/\D/g, "") })
-                              }
+                              onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value.replace(/\D/g, "") })}
                               placeholder="123"
                               maxLength={4}
                               type="password"
@@ -266,8 +251,7 @@ export default function PaymentPage() {
                     {method.type === "cod" && (
                       <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200">
                         <p className="text-sm text-yellow-800">
-                          <strong>Note:</strong> You will pay ৳13,827 in cash when your order is delivered. Please have
-                          the exact amount ready.
+                          <strong>Note:</strong> You will pay ৳{grandTotal} in cash when your order is delivered. Please have the exact amount ready.
                         </p>
                       </div>
                     )}
@@ -277,50 +261,42 @@ export default function PaymentPage() {
             ))}
           </div>
 
-          {/* Order Summary */}
           <div className="lg:col-span-1">
             <Card className="p-4 sticky top-4">
               <h3 className="text-lg font-medium text-black mb-4">Order Summary</h3>
 
-              {/* Order Items */}
               <div className="space-y-3 mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gray-200 rounded"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Premium Wireless Headphones</p>
-                    <p className="text-xs text-gray-500">Qty: 1</p>
+                {cartItems.map((item, index) => (
+                  <div key={index} className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-gray-200 rounded"></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{item.name}</p>
+                      <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                    </div>
+                    <span className="text-sm">৳{item.price * item.quantity}</span>
                   </div>
-                  <span className="text-sm">৳22,000</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gray-200 rounded"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Designer Sunglasses</p>
-                    <p className="text-xs text-gray-500">Qty: 1</p>
-                  </div>
-                  <span className="text-sm">৳8,800</span>
-                </div>
+                ))}
               </div>
 
               <hr className="my-4" />
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span>Items (2):</span>
-                  <span>৳30,800</span>
+                  <span>Items:</span>
+                  <span>৳{totalPrice}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping:</span>
-                  <span>৳120</span>
+                  <span>৳{shipping}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>VAT (10%):</span>
-                  <span>৳3,092</span>
+                  <span>৳{vat}</span>
                 </div>
                 <hr className="my-2" />
                 <div className="flex justify-between font-medium text-base">
                   <span>Order Total:</span>
-                  <span className="amazon-price">৳34,012</span>
+                  <span className="amazon-price">৳{grandTotal}</span>
                 </div>
               </div>
 
