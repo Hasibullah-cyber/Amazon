@@ -1,248 +1,146 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import { CreditCard, Banknote, Shield, Lock } from "lucide-react"
+import { CreditCard, Truck, Wallet } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useToast } from "@/components/ui/use-toast"
 
-interface PaymentMethod {
-  id: string
-  type: "card" | "mobile" | "cod"
-  name: string
-  icon: React.ReactNode
-  description: string
-}
-
-const paymentMethods: PaymentMethod[] = [
-  {
-    id: "bkash",
-    type: "mobile",
-    name: "bKash",
-    icon: <div className="w-8 h-8 bg-pink-500 rounded flex items-center justify-center text-white font-bold text-sm">bK</div>,
-    description: "Pay with your bKash mobile wallet",
-  },
-  {
-    id: "nagad",
-    type: "mobile",
-    name: "Nagad",
-    icon: <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center text-white font-bold text-sm">N</div>,
-    description: "Pay with your Nagad mobile wallet",
-  },
-  {
-    id: "rocket",
-    type: "mobile",
-    name: "Rocket",
-    icon: <div className="w-8 h-8 bg-purple-500 rounded flex items-center justify-center text-white font-bold text-sm">R</div>,
-    description: "Pay with your Rocket mobile wallet",
-  },
-  {
-    id: "card",
-    type: "card",
-    name: "Credit/Debit Card",
-    icon: <CreditCard className="h-6 w-6 text-blue-600" />,
-    description: "Visa, Mastercard, American Express",
-  },
-  {
-    id: "cod",
-    type: "cod",
-    name: "Cash on Delivery",
-    icon: <Banknote className="h-6 w-6 text-green-600" />,
-    description: "Pay when your order is delivered",
-  },
-]
-
-const PaymentPage = () => {
+export default function PaymentPage() {
   const router = useRouter()
-  const { toast } = useToast()
-  const [selectedPayment, setSelectedPayment] = useState<string>("")
-  const [cardDetails, setCardDetails] = useState({
-    number: "",
-    expiry: "",
-    cvv: "",
-    name: "",
-  })
-  const [mobileNumber, setMobileNumber] = useState("")
-  const [isProcessing, setIsProcessing] = useState(false)
+  const [cart, setCart] = useState<any[]>([])
+  const [selectedPayment, setSelectedPayment] = useState("Cash on Delivery")
+  const [address, setAddress] = useState("")
+  const [name, setName] = useState("")
+  const [phone, setPhone] = useState("")
+  const [city, setCity] = useState("")
 
-  const handlePlaceOrder = async () => {
-    if (!selectedPayment) {
-      toast({
-        title: "Payment Method Required",
-        description: "Please select a payment method to continue",
-        variant: "destructive",
-      })
-      return
+  useEffect(() => {
+    const storedCart = localStorage.getItem("cart")
+    if (storedCart) {
+      setCart(JSON.parse(storedCart))
+    }
+  }, [])
+
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const shipping = 120
+  const vat = Math.round(subtotal * 0.1)
+  const totalAmount = subtotal + shipping + vat
+
+  const handlePlaceOrder = () => {
+    const order = {
+      orderId: "#HS-" + Date.now(),
+      cartItems: cart,
+      subtotal,
+      vat,
+      shipping,
+      totalAmount,
+      paymentMethod: selectedPayment,
+      transactionId: "",
+      estimatedDelivery: "1-2 business days",
+      name,
+      address,
+      phone,
+      city,
     }
 
-    setIsProcessing(true)
-
-    setTimeout(() => {
-      const cartData = localStorage.getItem("cart")
-      const cart = cartData ? JSON.parse(cartData) : []
-      const total = cart.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0)
-
-      const orderData = {
-        items: cart,
-        total,
-        paymentMethod: selectedPayment,
-        address: "Not provided", // Replace with real address if needed
-      }
-
-      localStorage.setItem("order", JSON.stringify(orderData))
-      localStorage.removeItem("cart")
-
-      setIsProcessing(false)
-      toast({
-        title: "Order placed successfully!",
-        description: "Your order has been confirmed",
-      })
-      router.push("/order-confirmation")
-    }, 2000)
-  }
-
-  const formatExpiry = (value: string) => {
-    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "")
-    if (v.length >= 2) return v.substring(0, 2) + "/" + v.substring(2, 4)
-    return v
+    localStorage.setItem("order", JSON.stringify(order))
+    localStorage.removeItem("cart")
+    router.push("/order-confirmation")
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen py-8" suppressHydrationWarning>
-      <div className="container mx-auto px-4 max-w-4xl">
-        <div className="bg-white p-4 mb-4 border-b">
-          <h1 className="text-2xl font-medium text-black">Select a payment method</h1>
-          <p className="text-sm text-gray-600 mt-1">Choose how you want to pay for your order</p>
-        </div>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
+        {/* Payment Options */}
+        <Card className="p-6 space-y-4">
+          <h2 className="text-xl font-semibold mb-2 flex items-center">
+            <CreditCard className="w-5 h-5 mr-2" /> Payment Method
+          </h2>
+          <div className="space-y-2">
+            <label className="flex items-center space-x-2">
+              <input
+                type="radio"
+                name="payment"
+                value="Online Payment"
+                checked={selectedPayment === "Online Payment"}
+                onChange={(e) => setSelectedPayment(e.target.value)}
+              />
+              <span>Online Payment</span>
+            </label>
+            <label className="flex items-center space-x-2">
+              <input
+                type="radio"
+                name="payment"
+                value="Cash on Delivery"
+                checked={selectedPayment === "Cash on Delivery"}
+                onChange={(e) => setSelectedPayment(e.target.value)}
+              />
+              <span>Cash on Delivery</span>
+            </label>
+          </div>
+        </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-4">
-            {paymentMethods.map((method) => (
-              <Card
-                key={method.id}
-                className={`p-4 cursor-pointer transition-all ${
-                  selectedPayment === method.id ? "ring-2 ring-[#ff9900] bg-orange-50" : "hover:shadow-md"
-                }`}
-              >
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value={method.id}
-                    checked={selectedPayment === method.id}
-                    onChange={(e) => setSelectedPayment(e.target.value)}
-                    className="mr-3"
-                  />
-                  <div className="flex items-center flex-1">
-                    {method.icon}
-                    <div className="ml-3">
-                      <h3 className="font-medium text-black">{method.name}</h3>
-                      <p className="text-sm text-gray-600">{method.description}</p>
-                    </div>
-                  </div>
-                </div>
-                {selectedPayment === method.id && (
-                  <div className="mt-4 pl-8">
-                    {method.type === "card" && (
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
-                          <Input
-                            value={cardDetails.number}
-                            onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value })}
-                            placeholder="1234 5678 9012 3456"
-                            maxLength={19}
-                            required
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
-                            <Input
-                              value={cardDetails.expiry}
-                              onChange={(e) =>
-                                setCardDetails({ ...cardDetails, expiry: formatExpiry(e.target.value) })
-                              }
-                              placeholder="MM/YY"
-                              maxLength={5}
-                              required
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
-                            <Input
-                              value={cardDetails.cvv}
-                              onChange={(e) =>
-                                setCardDetails({ ...cardDetails, cvv: e.target.value.replace(/\D/g, "") })
-                              }
-                              placeholder="123"
-                              maxLength={4}
-                              type="password"
-                              required
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Cardholder Name</label>
-                          <Input
-                            value={cardDetails.name}
-                            onChange={(e) => setCardDetails({ ...cardDetails, name: e.target.value })}
-                            placeholder="John Doe"
-                          />
-                        </div>
-                      </div>
-                    )}
-                    {method.type === "mobile" && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
-                        <Input
-                          value={mobileNumber}
-                          onChange={(e) => setMobileNumber(e.target.value)}
-                          placeholder="+880 1XXXXXXXXX"
-                          required
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          You will be redirected to {method.name} to complete the payment
-                        </p>
-                      </div>
-                    )}
-                    {method.type === "cod" && (
-                      <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200">
-                        <p className="text-sm text-yellow-800">
-                          <strong>Note:</strong> You will pay in cash when your order is delivered.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </Card>
-            ))}
+        {/* Address & Summary */}
+        <Card className="p-6 space-y-4">
+          <h2 className="text-xl font-semibold mb-2 flex items-center">
+            <Truck className="w-5 h-5 mr-2" /> Shipping Information
+          </h2>
+          <input
+            type="text"
+            placeholder="Your Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full border px-3 py-2 rounded text-sm"
+          />
+          <input
+            type="text"
+            placeholder="Address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            className="w-full border px-3 py-2 rounded text-sm"
+          />
+          <input
+            type="text"
+            placeholder="City"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            className="w-full border px-3 py-2 rounded text-sm"
+          />
+          <input
+            type="text"
+            placeholder="Phone"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="w-full border px-3 py-2 rounded text-sm"
+          />
+
+          <h3 className="text-lg font-medium mt-4">Order Summary</h3>
+          <div className="text-sm space-y-1">
+            <div className="flex justify-between">
+              <span>Subtotal:</span>
+              <span>৳{subtotal}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Shipping:</span>
+              <span>৳{shipping}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>VAT (10%):</span>
+              <span>৳{vat}</span>
+            </div>
+            <hr />
+            <div className="flex justify-between font-bold">
+              <span>Total:</span>
+              <span>৳{totalAmount}</span>
+            </div>
           </div>
-          <div className="lg:col-span-1">
-            <Card className="p-4 sticky top-4">
-              <div className="mt-6">
-                <Button onClick={handlePlaceOrder} className="w-full" disabled={!selectedPayment || isProcessing}>
-                  {isProcessing ? "Processing..." : "Place Order"}
-                </Button>
-              </div>
-              <div className="mt-4 text-xs text-gray-500">
-                <div className="flex items-center mb-2">
-                  <Lock className="h-4 w-4 mr-1" />
-                  <span>SSL encrypted secure payment</span>
-                </div>
-                <p>
-                  By placing your order, you agree to the Terms of Service and Privacy Policy.
-                </p>
-              </div>
-            </Card>
-          </div>
-        </div>
+
+          <Button className="w-full mt-4" onClick={handlePlaceOrder}>
+            Place Order
+          </Button>
+        </Card>
       </div>
     </div>
   )
 }
-
-export default PaymentPage
