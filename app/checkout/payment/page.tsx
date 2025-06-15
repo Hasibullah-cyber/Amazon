@@ -8,7 +8,6 @@ import { Card } from "@/components/ui/card"
 import { CreditCard, Banknote, Shield, Lock } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
-import { Skeleton } from "@/components/ui/skeleton"
 
 interface PaymentMethod {
   id: string
@@ -37,29 +36,26 @@ export default function PaymentPage() {
   const [mobileNumber, setMobileNumber] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [cartItems, setCartItems] = useState<CartItem[]>([])
-  const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
-    setIsClient(true)
-    try {
-      const savedCart = JSON.parse(localStorage.getItem("cart") || "[]")
-      const validCart = savedCart.filter((item: any) => 
-        item && 
-        typeof item.name === 'string' && 
-        typeof item.price === 'number' && 
-        typeof item.quantity === 'number'
-      )
-      setCartItems(validCart)
-    } catch (e) {
-      console.error("Failed to load cart", e)
-      setCartItems([])
-      toast({
-        title: "Cart Error",
-        description: "Failed to load your cart items",
-        variant: "destructive",
-      })
+    // Safely access localStorage only on client side
+    if (typeof window !== "undefined") {
+      try {
+        const savedCart = JSON.parse(localStorage.getItem("cart") || "[]")
+        // Validate cart items structure
+        const validCart = savedCart.filter((item: any) => 
+          item && 
+          typeof item.name === 'string' && 
+          typeof item.price === 'number' && 
+          typeof item.quantity === 'number'
+        )
+        setCartItems(validCart)
+      } catch (e) {
+        console.error("Failed to load cart", e)
+        setCartItems([])
+      }
     }
-  }, [toast])
+  }, [])
 
   const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
   const shipping = 120
@@ -144,6 +140,7 @@ export default function PaymentPage() {
         description: "Your order has been confirmed. You will receive a confirmation email shortly.",
         duration: 5000,
       })
+      // Clear cart after successful order
       localStorage.removeItem("cart")
       router.push("/order-confirmation")
     }, 3000)
@@ -164,60 +161,6 @@ export default function PaymentPage() {
     const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "")
     if (v.length >= 2) return v.substring(0, 2) + "/" + v.substring(2, 4)
     return v
-  }
-
-  if (!isClient) {
-    return (
-      <div className="bg-gray-100 min-h-screen py-8">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="bg-white p-4 mb-4 border-b">
-            <Skeleton className="h-8 w-1/2" />
-            <Skeleton className="h-4 w-3/4 mt-2" />
-          </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <Card key={i} className="p-4">
-                  <div className="flex items-center">
-                    <Skeleton className="h-4 w-4 mr-3" />
-                    <Skeleton className="w-8 h-8 rounded" />
-                    <div className="ml-3 space-y-2 flex-1">
-                      <Skeleton className="h-4 w-1/2" />
-                      <Skeleton className="h-3 w-3/4" />
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-            
-            <div className="lg:col-span-1">
-              <Card className="p-4">
-                <Skeleton className="h-6 w-1/3 mb-4" />
-                <div className="space-y-3 mb-4">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="flex items-center space-x-3">
-                      <Skeleton className="w-12 h-12 rounded" />
-                      <div className="flex-1 space-y-2">
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-3 w-1/4" />
-                      </div>
-                      <Skeleton className="h-4 w-1/4" />
-                    </div>
-                  ))}
-                </div>
-                <div className="space-y-3">
-                  {[...Array(4)].map((_, i) => (
-                    <Skeleton key={i} className="h-4 w-full" />
-                  ))}
-                </div>
-                <Skeleton className="w-full h-10 mt-6" />
-              </Card>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (
