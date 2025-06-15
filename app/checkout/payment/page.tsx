@@ -17,45 +17,13 @@ interface PaymentMethod {
   description: string
 }
 
-const paymentMethods: PaymentMethod[] = [
-    {
-      id: "bkash",
-      type: "mobile",
-      name: "bKash",
-      icon: <div className="w-8 h-8 bg-pink-500 rounded flex items-center justify-center text-white font-bold text-sm">bK</div>,
-      description: "Pay with your bKash mobile wallet",
-    },
-    {
-      id: "nagad",
-      type: "mobile",
-      name: "Nagad",
-      icon: <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center text-white font-bold text-sm">N</div>,
-      description: "Pay with your Nagad mobile wallet",
-    },
-    {
-      id: "rocket",
-      type: "mobile",
-      name: "Rocket",
-      icon: <div className="w-8 h-8 bg-purple-500 rounded flex items-center justify-center text-white font-bold text-sm">R</div>,
-      description: "Pay with your Rocket mobile wallet",
-    },
-    {
-      id: "card",
-      type: "card",
-      name: "Credit/Debit Card",
-      icon: <CreditCard className="h-6 w-6 text-blue-600" />,
-      description: "Visa, Mastercard, American Express",
-    },
-    {
-      id: "cod",
-      type: "cod",
-      name: "Cash on Delivery",
-      icon: <Banknote className="h-6 w-6 text-green-600" />,
-      description: "Pay when your order is delivered",
-    },
-]
+interface CartItem {
+  name: string
+  price: number
+  quantity: number
+}
 
-const PaymentPage = () => {
+export default function PaymentPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [selectedPayment, setSelectedPayment] = useState<string>("")
@@ -67,154 +35,53 @@ const PaymentPage = () => {
   })
   const [mobileNumber, setMobileNumber] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
-  
-  const handlePlaceOrder = async () => {
-    if (!selectedPayment) {
-      toast({
-        title: "Payment Method Required",
-        description: "Please select a payment method to continue",
-        variant: "destructive",
-      })
-      return
-    }
-    // Add the logic to handle the order placement
-  }
+  const [cartItems, setCartItems] = useState<CartItem[]>([])
 
-  const formatExpiry = (value: string) => {
-    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "")
-    if (v.length >= 2) return v.substring(0, 2) + "/" + v.substring(2, 4)
-    return v
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const savedCart = JSON.parse(localStorage.getItem("cart") || "[]")
+        const validCart = savedCart.filter((item: any) =>
+          item &&
+          typeof item.name === 'string' &&
+          typeof item.price === 'number' &&
+          typeof item.quantity === 'number'
+        )
+        setCartItems(validCart)
+      } catch (error) {
+        console.error("Failed to load cart:", error)
+      }
+    }
+  }, [])
+
+  function handlePlaceOrder() {
+    setIsProcessing(true)
+
+    setTimeout(() => {
+      setIsProcessing(false)
+      localStorage.removeItem("cart")
+      toast({
+        title: "Order placed successfully!",
+      })
+      router.push("/order-confirmation")
+    }, 2000)
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen py-8" suppressHydrationWarning>
-      <div className="container mx-auto px-4 max-w-4xl">
-        <div className="bg-white p-4 mb-4 border-b">
-          <h1 className="text-2xl font-medium text-black">Select a payment method</h1>
-          <p className="text-sm text-gray-600 mt-1">Choose how you want to pay for your order</p>
-        </div>
+    <div className="p-4">
+      <h1 className="text-xl font-bold mb-4">Select Payment Method</h1>
+      {/* Your payment method UI here */}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-4">
-            {paymentMethods.map((method) => (
-              <Card
-                key={method.id}
-                className={`p-4 cursor-pointer transition-all ${selectedPayment === method.id ? "ring-2 ring-[#ff9900] bg-orange-50" : "hover:shadow-md"}`}
-              >
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value={method.id}
-                    checked={selectedPayment === method.id}
-                    onChange={(e) => setSelectedPayment(e.target.value)}
-                    className="mr-3"
-                  />
-                  <div className="flex items-center flex-1">
-                    {method.icon}
-                    <div className="ml-3">
-                      <h3 className="font-medium text-black">{method.name}</h3>
-                      <p className="text-sm text-gray-600">{method.description}</p>
-                    </div>
-                  </div>
-                </div>
-                {selectedPayment === method.id && (
-                  <div className="mt-4 pl-8">
-                    {method.type === "card" && (
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
-                          <Input
-                            value={cardDetails.number}
-                            onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value })}
-                            placeholder="1234 5678 9012 3456"
-                            maxLength={19}
-                            required
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
-                            <Input
-                              value={cardDetails.expiry}
-                              onChange={(e) => setCardDetails({ ...cardDetails, expiry: formatExpiry(e.target.value) })}
-                              placeholder="MM/YY"
-                              maxLength={5}
-                              required
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
-                            <Input
-                              value={cardDetails.cvv}
-                              onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value.replace(/\D/g, "") })}
-                              placeholder="123"
-                              maxLength={4}
-                              type="password"
-                              required
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Cardholder Name</label>
-                          <Input
-                            value={cardDetails.name}
-                            onChange={(e) => setCardDetails({ ...cardDetails, name: e.target.value })}
-                            placeholder="John Doe"
-                          />
-                        </div>
-                      </div>
-                    )}
-                    {method.type === "mobile" && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
-                        <Input
-                          value={mobileNumber}
-                          onChange={(e) => setMobileNumber(e.target.value)}
-                          placeholder="+880 1XXXXXXXXX"
-                          required
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          You will be redirected to {method.name} to complete the payment
-                        </p>
-                      </div>
-                    )}
-                    {method.type === "cod" && (
-                      <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200">
-                        <p className="text-sm text-yellow-800">
-                          <strong>Note:</strong> You will pay in cash when your order is delivered.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </Card>
-            ))}
+      <Button onClick={handlePlaceOrder} disabled={isProcessing} className="mt-4 w-full">
+        {isProcessing ? (
+          <div className="flex items-center">
+            <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+            Processing...
           </div>
-          <div className="lg:col-span-1">
-            <Card className="p-4 sticky top-4">
-              <div className="mt-6">
-                <Button
-                  onClick={handlePlaceOrder}
-                  className="w-full"
-                  disabled={!selectedPayment || isProcessing}
-                >
-                  {isProcessing ? "Processing..." : "Place Order"}
-                </Button>
-              </div>
-              <div className="mt-4 text-xs text-gray-500">
-                <div className="flex items-center mb-2">
-                  <Lock className="h-4 w-4 mr-1" />
-                  <span>SSL encrypted secure payment</span>
-                </div>
-                <p>By placing your order, you agree to the Terms of Service and Privacy Policy.</p>
-              </div>
-            </Card>
-          </div>
-        </div>
-      </div>
+        ) : (
+          "Place Order"
+        )}
+      </Button>
     </div>
   )
 }
-
-export default PaymentPage;
