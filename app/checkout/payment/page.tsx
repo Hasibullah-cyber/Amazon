@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
@@ -81,8 +81,21 @@ const PaymentPage = () => {
     setIsProcessing(true)
 
     setTimeout(() => {
-      setIsProcessing(false)
+      const cartData = localStorage.getItem("cart")
+      const cart = cartData ? JSON.parse(cartData) : []
+      const total = cart.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0)
+
+      const orderData = {
+        items: cart,
+        total,
+        paymentMethod: selectedPayment,
+        address: "Not provided", // Replace with real address if needed
+      }
+
+      localStorage.setItem("order", JSON.stringify(orderData))
       localStorage.removeItem("cart")
+
+      setIsProcessing(false)
       toast({
         title: "Order placed successfully!",
         description: "Your order has been confirmed",
