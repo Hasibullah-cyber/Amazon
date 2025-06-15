@@ -52,7 +52,7 @@ export default function LocationPage() {
     area: "",
   })
 
-  const handleAddAddress = () => {
+  const handleAddOrUpdate = () => {
     if (!newAddress.name || !newAddress.phone || !newAddress.address || !newAddress.area) {
       toast({
         title: "Error",
@@ -62,20 +62,32 @@ export default function LocationPage() {
       return
     }
 
-    const address: Address = {
-      id: Date.now().toString(),
-      ...newAddress,
-      isDefault: addresses.length === 0,
+    if (editingAddress) {
+      setAddresses((prev) =>
+        prev.map((addr) =>
+          addr.id === editingAddress ? { ...addr, ...newAddress } : addr
+        )
+      )
+      toast({
+        title: "Address Updated",
+        description: "Your address has been updated successfully",
+      })
+    } else {
+      const address: Address = {
+        id: Date.now().toString(),
+        ...newAddress,
+        isDefault: addresses.length === 0,
+      }
+      setAddresses([...addresses, address])
+      toast({
+        title: "Address Added",
+        description: "Your new address has been saved successfully",
+      })
     }
 
-    setAddresses([...addresses, address])
     setNewAddress({ name: "", phone: "", address: "", city: "Dhaka", area: "" })
+    setEditingAddress(null)
     setShowAddForm(false)
-
-    toast({
-      title: "Address Added",
-      description: "Your new address has been saved successfully",
-    })
   }
 
   const handleSetDefault = (id: string) => {
@@ -91,6 +103,18 @@ export default function LocationPage() {
     toast({
       title: "Address Deleted",
       description: "The address has been removed from your account",
+    })
+  }
+
+  const handleEditClick = (address: Address) => {
+    setEditingAddress(address.id)
+    setShowAddForm(true)
+    setNewAddress({
+      name: address.name,
+      phone: address.phone,
+      address: address.address,
+      city: address.city,
+      area: address.area,
     })
   }
 
@@ -154,7 +178,7 @@ export default function LocationPage() {
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    <Button variant="ghost" size="sm" onClick={() => setEditingAddress(address.id)}>
+                    <Button variant="ghost" size="sm" onClick={() => handleEditClick(address)}>
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
@@ -170,21 +194,12 @@ export default function LocationPage() {
               </Card>
             ))}
 
-            {/* Add New Address */}
-            {!showAddForm ? (
-              <Card className="p-4 border-dashed border-2 border-gray-300">
-                <Button
-                  variant="ghost"
-                  className="w-full h-20 text-gray-600 hover:text-black"
-                  onClick={() => setShowAddForm(true)}
-                >
-                  <Plus className="h-6 w-6 mr-2" />
-                  Add a new address
-                </Button>
-              </Card>
-            ) : (
+            {/* Add / Edit Form */}
+            {showAddForm && (
               <Card className="p-6">
-                <h3 className="text-lg font-medium text-black mb-4">Add a new address</h3>
+                <h3 className="text-lg font-medium text-black mb-4">
+                  {editingAddress ? "Edit Address" : "Add a new address"}
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
@@ -235,19 +250,33 @@ export default function LocationPage() {
                   </div>
                 </div>
                 <div className="flex space-x-3 mt-6">
-                  <Button onClick={handleAddAddress} className="amazon-button">
-                    Add Address
+                  <Button onClick={handleAddOrUpdate} className="amazon-button">
+                    {editingAddress ? "Update Address" : "Add Address"}
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => {
                       setShowAddForm(false)
+                      setEditingAddress(null)
                       setNewAddress({ name: "", phone: "", address: "", city: "Dhaka", area: "" })
                     }}
                   >
                     Cancel
                   </Button>
                 </div>
+              </Card>
+            )}
+
+            {!showAddForm && (
+              <Card className="p-4 border-dashed border-2 border-gray-300">
+                <Button
+                  variant="ghost"
+                  className="w-full h-20 text-gray-600 hover:text-black"
+                  onClick={() => setShowAddForm(true)}
+                >
+                  <Plus className="h-6 w-6 mr-2" />
+                  Add a new address
+                </Button>
               </Card>
             )}
           </div>
