@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { CreditCard, Truck, Wallet } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { supabase } from "@/lib/supabase"
 
 export default function PaymentPage() {
   const router = useRouter()
@@ -27,21 +28,23 @@ export default function PaymentPage() {
   const vat = Math.round(subtotal * 0.1)
   const totalAmount = subtotal + shipping + vat
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     const order = {
-      orderId: "#HS-" + Date.now(),
-      cartItems: cart,
-      subtotal,
-      vat,
-      shipping,
-      totalAmount,
-      paymentMethod: selectedPayment,
-      transactionId: "",
-      estimatedDelivery: "1-2 business days",
       name,
       address,
-      phone,
       city,
+      phone,
+      payment_method: selectedPayment,
+      total_amount: totalAmount,
+      items: cart,
+    }
+
+    const { error } = await supabase.from("orders").insert([order])
+
+    if (error) {
+      alert("Failed to place order. Please try again.")
+      console.error("Supabase insert error:", error)
+      return
     }
 
     localStorage.setItem("order", JSON.stringify(order))
