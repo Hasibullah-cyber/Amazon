@@ -14,13 +14,12 @@ export default function SuccessStorySection() {
         <div className="bg-white border border-gray-200 rounded-sm p-6 sm:p-10 max-w-4xl mx-auto">
           <div className="flex flex-col md:flex-row gap-8 items-center">
             <div className="md:w-1/2">
-              <div className="relative h-80 w-full rounded-sm overflow-hidden">
+              <div className="relative h-80 w-full rounded-sm overflow-hidden" style={{ position: 'relative' }}>
                 <Image
                   src="/placeholder.svg?height=400&width=400"
                   alt="Hasib Shop Founder"
                   fill
                   className="object-cover"
-                  style={{ position: 'absolute' }}
                 />
               </div>
             </div>
