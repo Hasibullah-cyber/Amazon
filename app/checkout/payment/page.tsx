@@ -9,50 +9,47 @@ interface CartItem {
 }
 
 export default function PaymentPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [cartItems, setCartItems] = useState<CartItem[] | null>(null);
 
   useEffect(() => {
     try {
       const cart = localStorage.getItem('cart');
       if (cart) {
         setCartItems(JSON.parse(cart));
+      } else {
+        setCartItems([]);
       }
-    } catch (err) {
-      console.error('Error reading cart:', err);
-    } finally {
-      setLoaded(true);
+    } catch (error) {
+      console.error('Cart loading failed:', error);
+      setCartItems([]);
     }
   }, []);
 
-  if (!loaded) return <div className="p-4">Loading...</div>;
+  if (cartItems === null) return <div className="p-4">Loading...</div>;
 
   return (
-    <div className="p-4 max-w-xl mx-auto">
+    <div className="p-4 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Payment Page</h1>
 
       {cartItems.length === 0 ? (
-        <p className="text-gray-500">Your cart is empty.</p>
+        <p>Your cart is empty.</p>
       ) : (
-        <ul className="space-y-3">
-          {cartItems.map((item, i) => (
-            <li
-              key={i}
-              className="border p-3 rounded-lg shadow bg-white"
-            >
-              <div className="font-semibold">{item.name}</div>
-              <div className="text-sm">Qty: {item.quantity}</div>
-              <div className="text-sm text-green-600">${item.price}</div>
+        <ul className="space-y-4">
+          {cartItems.map((item, idx) => (
+            <li key={idx} className="border rounded p-4 shadow">
+              <p><strong>{item.name}</strong></p>
+              <p>Quantity: {item.quantity}</p>
+              <p>Price: ${item.price}</p>
             </li>
           ))}
         </ul>
       )}
 
       <button
-        className="mt-6 w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700"
-        onClick={() => alert('Demo payment — no real gateway connected.')}
+        onClick={() => alert('Payment Processed')}
+        className="mt-6 w-full bg-green-600 text-white py-2 rounded"
       >
-        Proceed to Payment
+        Pay Now
       </button>
     </div>
   );
