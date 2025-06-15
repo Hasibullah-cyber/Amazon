@@ -88,30 +88,39 @@
 
 .amazon-button {
   background-color: #ffd814;
-  color: black;
-  font-weight: 500;
+  color: #0f1111;
+  font-weight: 400;
   border: 1px solid #fcd200;
-  border-radius: 0.25rem;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .amazon-button:hover {
   background-color: #f7ca00;
+  border-color: #f2c200;
 }
 
 .amazon-button-secondary {
-  background-color: #f0f2f2;
-  color: black;
-  font-weight: 500;
+  background-color: #ffffff;
+  color: #0f1111;
+  font-weight: 400;
   border: 1px solid #d5d9d9;
-  border-radius: 0.25rem;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .amazon-button-secondary:hover {
-  background-color: #e0e2e2;
+  background-color: #f7f8f8;
+  border-color: #c7c7c7;
 }
 
 .amazon-link {
   color: #007185;
+  transition: color 0.2s ease;
 }
 
 .amazon-link:hover {
@@ -120,29 +129,43 @@
 }
 
 .amazon-card {
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.125rem;
-  padding: 1rem;
-  transition: box-shadow 0.2s;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .amazon-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
 }
 
 .amazon-title {
-  color: black;
+  color: #0f1111;
   font-weight: 500;
+  line-height: 1.4;
 }
 
 .amazon-price {
-  color: black;
+  color: #0f1111;
   font-weight: 700;
+  font-size: 18px;
 }
 
 .amazon-rating {
   color: #ffa41c;
+}
+
+/* Additional Amazon-like improvements */
+body {
+  background-color: #f3f3f3;
+  font-family: "Amazon Ember", Arial, sans-serif;
+}
+
+.container {
+  max-width: 1500px;
 }
 
 /* Remove glassmorphism effects */

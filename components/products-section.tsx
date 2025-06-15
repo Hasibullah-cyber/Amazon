@@ -98,7 +98,7 @@ export default function ProductsSection() {
             <div key={product.id} className="amazon-card">
               <Link href={`/product/${product.id}`} className="block">
                 <div className="aspect-square relative mb-3">
-                  <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-contain" style={{ position: 'absolute' }} />
+                  <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-contain" />
                 </div>
                 <h3 className="text-base line-clamp-2 mb-1 hover:text-[#C7511F]">{product.name}</h3>
               </Link>
