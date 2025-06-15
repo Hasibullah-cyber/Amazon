@@ -10,18 +10,42 @@ export default function OrderConfirmationPage() {
   const [order, setOrder] = useState<any>(null)
 
   useEffect(() => {
-    const stored = localStorage.getItem("order")
-    if (stored) {
-      setOrder(JSON.parse(stored))
+    const storedOrder = localStorage.getItem("order")
+    const storedCart = localStorage.getItem("cart")
+
+    if (storedOrder) {
+      setOrder(JSON.parse(storedOrder))
+    } else if (storedCart) {
+      const cartItems = JSON.parse(storedCart)
+      const subtotal = cartItems.reduce(
+        (total: number, item: any) => total + item.price * item.quantity,
+        0
+      )
+      const vat = Math.round(subtotal * 0.1)
+      const shipping = 120
+      const totalAmount = subtotal + vat + shipping
+
+      const fallbackOrder = {
+        orderId: "#HS-2025-XYZ",
+        name: "Guest User",
+        address: "123 Default Street",
+        city: "Dhaka",
+        phone: "01700000000",
+        paymentMethod: "Cash on Delivery",
+        transactionId: null,
+        estimatedDelivery: "1-2 business days",
+        cartItems,
+        subtotal,
+        shipping,
+        vat,
+        totalAmount,
+      }
+
+      setOrder(fallbackOrder)
     }
   }, [])
 
   if (!order) return <div className="p-6">Loading your order...</div>
-
-  const subtotal = order.items?.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0) || 0
-  const vat = Math.floor(subtotal * 0.1)
-  const shipping = 120
-  const total = subtotal + vat + shipping
 
   return (
     <div className="bg-gray-100 min-h-screen py-8">
@@ -32,7 +56,7 @@ export default function OrderConfirmationPage() {
           <p className="text-green-700 mb-4">Thank you for shopping with Hasib Shop</p>
           <div className="bg-white p-4 rounded-md inline-block">
             <p className="text-sm text-gray-600">Order Number</p>
-            <p className="text-xl font-bold text-black">{order.orderId || "#HS-2025-XYZ"}</p>
+            <p className="text-xl font-bold text-black">{order.orderId}</p>
           </div>
         </Card>
 
@@ -48,15 +72,15 @@ export default function OrderConfirmationPage() {
                 <div className="flex items-start">
                   <MapPin className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
                   <div>
-                    <p className="font-medium">{order.name || "Customer Name"}</p>
-                    <p className="text-sm text-gray-600">{order.address || "Customer Address"}</p>
-                    <p className="text-sm text-gray-600">{order.city || "City"}</p>
-                    <p className="text-sm text-gray-600">{order.phone || "Phone Number"}</p>
+                    <p className="font-medium">{order.name}</p>
+                    <p className="text-sm text-gray-600">{order.address}</p>
+                    <p className="text-sm text-gray-600">{order.city}</p>
+                    <p className="text-sm text-gray-600">{order.phone}</p>
                   </div>
                 </div>
                 <div className="bg-blue-50 p-3 rounded-md">
                   <p className="text-sm text-blue-800">
-                    <strong>Estimated Delivery:</strong> {order.estimatedDelivery || "1-2 business days"}
+                    <strong>Estimated Delivery:</strong> {order.estimatedDelivery}
                   </p>
                 </div>
               </div>
@@ -89,7 +113,7 @@ export default function OrderConfirmationPage() {
                 Order Items
               </h2>
               <div className="space-y-4">
-                {order.items?.map((item: any, i: number) => (
+                {order.cartItems?.map((item: any, i: number) => (
                   <div key={i} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-md">
                     <div className="w-16 h-16 bg-gray-200 rounded"></div>
                     <div className="flex-1">
@@ -110,21 +134,21 @@ export default function OrderConfirmationPage() {
               <h3 className="text-xl font-medium text-black mb-4">Order Summary</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span>Subtotal ({order.items?.length} items):</span>
-                  <span>৳{subtotal}</span>
+                  <span>Subtotal ({order.cartItems?.length} items):</span>
+                  <span>৳{order.subtotal}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping:</span>
-                  <span>৳{shipping}</span>
+                  <span>৳{order.shipping}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>VAT (10%):</span>
-                  <span>৳{vat}</span>
+                  <span>৳{order.vat}</span>
                 </div>
                 <hr className="my-3" />
                 <div className="flex justify-between font-medium text-lg">
                   <span>Total Paid:</span>
-                  <span className="amazon-price">৳{total}</span>
+                  <span className="amazon-price">৳{order.totalAmount}</span>
                 </div>
               </div>
 
