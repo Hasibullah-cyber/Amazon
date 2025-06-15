@@ -2,101 +2,75 @@
 
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { CheckCircle, CreditCard, Wallet } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export default function PaymentPage() {
   const router = useRouter()
-
-  const [isMounted, setIsMounted] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState("online")
-  const [cartData, setCartData] = useState({
-    cartItems: [],
-    subtotal: 0,
-    shipping: 120,
-    vat: 0,
-    total: 0,
-  })
+  const [total, setTotal] = useState(0)
 
   useEffect(() => {
-    setIsMounted(true)
-
-    try {
-      const rawData = localStorage.getItem("orderData")
-      const data = rawData ? JSON.parse(rawData) : {}
-      const items = data.cartItems || []
-      const subtotal = items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0)
-      const shipping = 120
-      const vat = Math.round(subtotal * 0.1)
-      const total = subtotal + shipping + vat
-
-      setCartData({ cartItems: items, subtotal, shipping, vat, total })
-    } catch (error) {
-      console.error("Failed to load orderData:", error)
+    // Safely load total from localStorage
+    const storedTotal = localStorage.getItem("cartTotal")
+    if (storedTotal) {
+      setTotal(Number(storedTotal))
     }
   }, [])
 
   const handlePlaceOrder = () => {
-    if (!isMounted) return
-
-    const orderInfo = {
-      ...cartData,
-      paymentMethod,
-      paymentStatus: paymentMethod === "online" ? "Confirmed" : "Pending",
-      transactionId: paymentMethod === "online" ? "SSL123456" : "COD",
-    }
-
-    localStorage.setItem("orderData", JSON.stringify(orderInfo))
+    // Save selected payment method (optional)
+    localStorage.setItem("selectedPaymentMethod", paymentMethod)
+    // Redirect to confirmation page
     router.push("/order-confirmation")
   }
 
-  if (!isMounted) return null // Prevent server-side mismatch
-
   return (
     <div className="bg-gray-100 min-h-screen py-8">
-      <div className="container mx-auto max-w-4xl px-4 space-y-6">
+      <div className="container mx-auto px-4 max-w-3xl">
         <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4 text-black">Select Payment Method</h2>
-          <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
-            <div className="flex items-center space-x-3">
-              <RadioGroupItem id="online" value="online" />
-              <Label htmlFor="online">Online Payment (bKash, Card, etc.)</Label>
+          <h1 className="text-2xl font-bold mb-6">Choose Payment Method</h1>
+          <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-4">
+            <div className="flex items-center space-x-4">
+              <RadioGroupItem value="online" id="online" />
+              <Label htmlFor="online" className="flex items-center space-x-2">
+                <CreditCard className="w-5 h-5 mr-2" />
+                <span>Online Payment</span>
+              </Label>
             </div>
-            <div className="flex items-center space-x-3">
-              <RadioGroupItem id="cod" value="cod" />
-              <Label htmlFor="cod">Cash on Delivery</Label>
+            <div className="flex items-center space-x-4">
+              <RadioGroupItem value="cod" id="cod" />
+              <Label htmlFor="cod" className="flex items-center space-x-2">
+                <Wallet className="w-5 h-5 mr-2" />
+                <span>Cash on Delivery</span>
+              </Label>
             </div>
           </RadioGroup>
-        </Card>
 
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4 text-black">Order Summary</h2>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
+          <div className="mt-8 border-t pt-6">
+            <h2 className="text-xl font-semibold mb-2">Order Summary</h2>
+            <div className="flex justify-between text-sm mb-1">
               <span>Subtotal:</span>
-              <span>৳{cartData.subtotal}</span>
+              <span>৳{total.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm mb-1">
               <span>Shipping:</span>
-              <span>৳{cartData.shipping}</span>
+              <span>৳120.00</span>
             </div>
-            <div className="flex justify-between">
-              <span>VAT (10%):</span>
-              <span>৳{cartData.vat}</span>
-            </div>
-            <hr className="my-3" />
-            <div className="flex justify-between font-semibold text-lg">
+            <div className="flex justify-between text-sm font-bold text-lg mt-2">
               <span>Total:</span>
-              <span className="text-green-600">৳{cartData.total}</span>
+              <span>৳{(total + 120).toFixed(2)}</span>
             </div>
           </div>
-        </Card>
 
-        <Button className="w-full amazon-button text-white text-lg py-6" onClick={handlePlaceOrder}>
-          Place Order
-        </Button>
+          <Button className="mt-6 w-full amazon-button" onClick={handlePlaceOrder}>
+            <CheckCircle className="w-5 h-5 mr-2" />
+            Place Order
+          </Button>
+        </Card>
       </div>
     </div>
   )
