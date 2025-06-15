@@ -17,52 +17,7 @@ interface PaymentMethod {
   description: string
 }
 
-interface CartItem {
-  name: string
-  price: number
-  quantity: number
-}
-
-export default function PaymentPage() {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [selectedPayment, setSelectedPayment] = useState<string>("")
-  const [cardDetails, setCardDetails] = useState({
-    number: "",
-    expiry: "",
-    cvv: "",
-    name: "",
-  })
-  const [mobileNumber, setMobileNumber] = useState("")
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
-
-  useEffect(() => {
-    // Safely access localStorage only on client side
-    if (typeof window !== "undefined") {
-      try {
-        const savedCart = JSON.parse(localStorage.getItem("cart") || "[]")
-        // Validate cart items structure
-        const validCart = savedCart.filter((item: any) => 
-          item && 
-          typeof item.name === 'string' && 
-          typeof item.price === 'number' && 
-          typeof item.quantity === 'number'
-        )
-        setCartItems(validCart)
-      } catch (e) {
-        console.error("Failed to load cart", e)
-        setCartItems([])
-      }
-    }
-  }, [])
-
-  const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
-  const shipping = 120
-  const vat = Math.round(totalPrice * 0.1)
-  const grandTotal = totalPrice + shipping + vat
-
-  const paymentMethods: PaymentMethod[] = [
+const paymentMethods: PaymentMethod[] = [
     {
       id: "bkash",
       type: "mobile",
@@ -98,8 +53,21 @@ export default function PaymentPage() {
       icon: <Banknote className="h-6 w-6 text-green-600" />,
       description: "Pay when your order is delivered",
     },
-  ]
+]
 
+const PaymentPage = () => {
+  const router = useRouter()
+  const { toast } = useToast()
+  const [selectedPayment, setSelectedPayment] = useState<string>("")
+  const [cardDetails, setCardDetails] = useState({
+    number: "",
+    expiry: "",
+    cvv: "",
+    name: "",
+  })
+  const [mobileNumber, setMobileNumber] = useState("")
+  const [isProcessing, setIsProcessing] = useState(false)
+  
   const handlePlaceOrder = async () => {
     if (!selectedPayment) {
       toast({
@@ -109,52 +77,7 @@ export default function PaymentPage() {
       })
       return
     }
-
-    if (selectedPayment === "card") {
-      if (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv || !cardDetails.name) {
-        toast({
-          title: "Card Details Required",
-          description: "Please fill in all card details",
-          variant: "destructive",
-        })
-        return
-      }
-    }
-
-    if (["bkash", "nagad", "rocket"].includes(selectedPayment)) {
-      if (!mobileNumber) {
-        toast({
-          title: "Mobile Number Required",
-          description: "Please enter your mobile number",
-          variant: "destructive",
-        })
-        return
-      }
-    }
-
-    setIsProcessing(true)
-    setTimeout(() => {
-      setIsProcessing(false)
-      toast({
-        title: "Order Placed Successfully!",
-        description: "Your order has been confirmed. You will receive a confirmation email shortly.",
-        duration: 5000,
-      })
-      // Clear cart after successful order
-      localStorage.removeItem("cart")
-      router.push("/order-confirmation")
-    }, 3000)
-  }
-
-  const formatCardNumber = (value: string) => {
-    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "")
-    const matches = v.match(/\d{4,16}/g)
-    const match = (matches && matches[0]) || ""
-    const parts = []
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4))
-    }
-    return parts.join(" ")
+    // Add the logic to handle the order placement
   }
 
   const formatExpiry = (value: string) => {
@@ -173,16 +96,6 @@ export default function PaymentPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4">
-            <Card className="p-4 bg-green-50 border-green-200">
-              <div className="flex items-center">
-                <Shield className="h-5 w-5 text-green-600 mr-2" />
-                <div>
-                  <h3 className="font-medium text-green-800">Secure Payment</h3>
-                  <p className="text-sm text-green-700">Your payment information is encrypted and secure</p>
-                </div>
-              </div>
-            </Card>
-
             {paymentMethods.map((method) => (
               <Card
                 key={method.id}
@@ -205,7 +118,6 @@ export default function PaymentPage() {
                     </div>
                   </div>
                 </div>
-
                 {selectedPayment === method.id && (
                   <div className="mt-4 pl-8">
                     {method.type === "card" && (
@@ -214,9 +126,10 @@ export default function PaymentPage() {
                           <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
                           <Input
                             value={cardDetails.number}
-                            onChange={(e) => setCardDetails({ ...cardDetails, number: formatCardNumber(e.target.value) })}
+                            onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value })}
                             placeholder="1234 5678 9012 3456"
                             maxLength={19}
+                            required
                           />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -227,6 +140,7 @@ export default function PaymentPage() {
                               onChange={(e) => setCardDetails({ ...cardDetails, expiry: formatExpiry(e.target.value) })}
                               placeholder="MM/YY"
                               maxLength={5}
+                              required
                             />
                           </div>
                           <div>
@@ -237,6 +151,7 @@ export default function PaymentPage() {
                               placeholder="123"
                               maxLength={4}
                               type="password"
+                              required
                             />
                           </div>
                         </div>
@@ -250,7 +165,6 @@ export default function PaymentPage() {
                         </div>
                       </div>
                     )}
-
                     {method.type === "mobile" && (
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
@@ -258,17 +172,17 @@ export default function PaymentPage() {
                           value={mobileNumber}
                           onChange={(e) => setMobileNumber(e.target.value)}
                           placeholder="+880 1XXXXXXXXX"
+                          required
                         />
                         <p className="text-xs text-gray-500 mt-1">
                           You will be redirected to {method.name} to complete the payment
                         </p>
                       </div>
                     )}
-
                     {method.type === "cod" && (
                       <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200">
                         <p className="text-sm text-yellow-800">
-                          <strong>Note:</strong> You will pay ৳{grandTotal} in cash when your order is delivered. Please have the exact amount ready.
+                          <strong>Note:</strong> You will pay in cash when your order is delivered.
                         </p>
                       </div>
                     )}
@@ -277,69 +191,23 @@ export default function PaymentPage() {
               </Card>
             ))}
           </div>
-
           <div className="lg:col-span-1">
             <Card className="p-4 sticky top-4">
-              <h3 className="text-lg font-medium text-black mb-4">Order Summary</h3>
-
-              <div className="space-y-3 mb-4">
-                {cartItems.map((item, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-gray-200 rounded"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{item.name}</p>
-                      <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
-                    </div>
-                    <span className="text-sm">৳{item.price * item.quantity}</span>
-                  </div>
-                ))}
-              </div>
-
-              <hr className="my-4" />
-
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Items:</span>
-                  <span>৳{totalPrice}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Shipping:</span>
-                  <span>৳{shipping}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>VAT (10%):</span>
-                  <span>৳{vat}</span>
-                </div>
-                <hr className="my-2" />
-                <div className="flex justify-between font-medium text-base">
-                  <span>Order Total:</span>
-                  <span className="amazon-price">৳{grandTotal}</span>
-                </div>
-              </div>
-
               <div className="mt-6">
                 <Button
                   onClick={handlePlaceOrder}
-                  className="amazon-button w-full"
+                  className="w-full"
                   disabled={!selectedPayment || isProcessing}
                 >
-                  {isProcessing ? (
-                    <div className="flex items-center">
-                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                      Processing...
-                    </div>
-                  ) : (
-                    "Place Order"
-                  )}
+                  {isProcessing ? "Processing..." : "Place Order"}
                 </Button>
               </div>
-
               <div className="mt-4 text-xs text-gray-500">
                 <div className="flex items-center mb-2">
                   <Lock className="h-4 w-4 mr-1" />
                   <span>SSL encrypted secure payment</span>
                 </div>
-                <p>By placing your order, you agree to Hasib Shop's Terms of Service and Privacy Policy.</p>
+                <p>By placing your order, you agree to the Terms of Service and Privacy Policy.</p>
               </div>
             </Card>
           </div>
@@ -348,3 +216,5 @@ export default function PaymentPage() {
     </div>
   )
 }
+
+export default PaymentPage;
